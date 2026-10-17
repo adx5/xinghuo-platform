@@ -10,8 +10,15 @@ TURSO_AUTH_TOKEN = os.getenv("TURSO_AUTH_TOKEN")
 if TURSO_DATABASE_URL and TURSO_AUTH_TOKEN:
     # 云端环境：连接 Turso
     print("🚀 正在连接 Turso 云数据库...")
-    SQLALCHEMY_DATABASE_URL = f"sqlite+libsql://{TURSO_DATABASE_URL.split('://')[1]}?authToken={TURSO_AUTH_TOKEN}"
-    engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+    # 提取 host 部分（去掉 libsql://）
+    host = TURSO_DATABASE_URL.replace("libsql://", "").replace("https://", "")
+    # 强制使用 secure=true 解决 308 重定向问题
+    SQLALCHEMY_DATABASE_URL = f"sqlite+libsql://{host}?secure=true"
+
+    engine = create_engine(
+        SQLALCHEMY_DATABASE_URL,
+        connect_args={"auth_token": TURSO_AUTH_TOKEN}  # Token 放在这里更安全
+    )
 else:
     # 本地环境：连接本地 SQLite
     print("💻 正在连接本地 SQLite 数据库...")
@@ -23,6 +30,7 @@ else:
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
+
 class Resource(Base):
     __tablename__ = "resources"
     id = Column(Integer, primary_key=True, index=True)
@@ -33,6 +41,7 @@ class Resource(Base):
     description = Column(Text)
     is_vip = Column(Boolean, default=False)
 
+
 class Lead(Base):
     __tablename__ = "leads"
     id = Column(Integer, primary_key=True, index=True)
@@ -41,6 +50,7 @@ class Lead(Base):
     client_name = Column(String(50))
     contact_info = Column(String(100))
     message = Column(Text)
+
 
 # 创建表 (首次连云端会自动建表)
 Base.metadata.create_all(bind=engine)
