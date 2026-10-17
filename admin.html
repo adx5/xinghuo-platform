@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>星火引力 - 运营管理后台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .text-brand { color: #FF6B00; }
+        .bg-brand { background-color: #FF6B00; }
+        .bg-brand-hover:hover { background-color: #E65C00; }
+        .bg-ink-blue { background-color: #0F172A; }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans text-gray-800 antialiased flex h-screen overflow-hidden">
+
+    <!-- 左侧侧边栏 -->
+    <aside class="w-64 bg-ink-blue text-white flex flex-col shadow-xl z-20">
+        <!-- Logo 区 -->
+        <div class="h-16 flex items-center px-6 border-b border-gray-800">
+            <div class="w-8 h-8 bg-brand rounded-full flex items-center justify-center font-bold text-lg text-white mr-3">星</div>
+            <span class="font-bold text-xl tracking-wider">星火引力</span>
+        </div>
+
+        <!-- 菜单导航 -->
+        <nav class="flex-1 py-6 space-y-2">
+            <a href="#" id="nav-dashboard" onclick="switchTab('dashboard')" class="flex items-center px-6 py-3 text-gray-400 hover:text-white hover:bg-white/5 transition">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                数据仪表盘
+            </a>
+
+            <a href="#" id="nav-leads" onclick="switchTab('leads')" class="flex items-center px-6 py-3 bg-brand/10 text-brand border-r-4 border-brand font-medium transition">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                对接线索池
+            </a>
+
+            <a href="#" id="nav-resources" onclick="switchTab('resources')" class="flex items-center px-6 py-3 text-gray-400 hover:text-white hover:bg-white/5 transition">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                资源管理
+            </a>
+        </nav>
+
+        <!-- 底部版权 (干净整洁) -->
+        <div class="mt-auto p-6 border-t border-gray-800 text-xs text-gray-500 text-center">
+            郑州普耀文化传媒有限公司<br>© 2026 星火引力
+        </div>
+    </aside>
+
+    <!-- 右侧主内容区 -->
+    <main class="flex-1 flex flex-col relative overflow-hidden bg-gray-50">
+
+        <!-- 顶栏 (包含返回首页和刷新) -->
+        <header class="h-16 bg-white shadow-sm flex items-center justify-between px-8 z-10">
+            <h2 id="pageTitle" class="text-lg font-bold text-gray-800">对接线索池</h2>
+
+            <div class="flex items-center gap-4">
+                <!-- 返回前台首页 -->
+                <a href="http://127.0.0.1:8080/index.html" target="_blank" class="text-sm text-gray-500 hover:text-brand transition flex items-center gap-1.5 border-r border-gray-200 pr-4">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                    返回前台首页
+                </a>
+
+                <!-- 刷新按钮 -->
+                <button onclick="refreshCurrentTab()" class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 py-1.5 px-4 rounded transition flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    刷新数据
+                </button>
+            </div>
+        </header>
+
+        <!-- ================= 1. 数据仪表盘 ================= -->
+        <div id="tab-dashboard" class="hidden flex-1 p-8 overflow-auto">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-500 font-medium mb-1">平台资源总数</p>
+                        <h3 id="stat-resources" class="text-3xl font-bold text-gray-900">0</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-500 font-medium mb-1">收到对接线索</p>
+                        <h3 id="stat-leads" class="text-3xl font-bold text-brand">0</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-orange-50 text-brand rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-500 font-medium mb-1">VIP置顶资源</p>
+                        <h3 id="stat-vip" class="text-3xl font-bold text-yellow-600">0</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-yellow-50 text-yellow-600 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= 2. 对接线索池 ================= -->
+        <div id="tab-leads" class="flex-1 p-8 overflow-auto">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-50 text-gray-500 text-sm border-b border-gray-200">
+                            <th class="py-4 px-6 font-medium">线索ID</th>
+                            <th class="py-4 px-6 font-medium">目标资源</th>
+                            <th class="py-4 px-6 font-medium">客户称呼</th>
+                            <th class="py-4 px-6 font-medium">联系方式</th>
+                            <th class="py-4 px-6 font-medium">留言备注</th>
+                            <th class="py-4 px-6 font-medium text-right">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leadsTableBody" class="text-sm divide-y divide-gray-100">
+                        <tr><td colspan="6" class="py-10 text-center text-gray-400">正在加载数据...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ================= 3. 资源管理 ================= -->
+        <div id="tab-resources" class="hidden flex-1 p-8 overflow-auto">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-50 text-gray-500 text-sm border-b border-gray-200">
+                            <th class="py-4 px-6 font-medium">ID</th>
+                            <th class="py-4 px-6 font-medium">资源名称</th>
+                            <th class="py-4 px-6 font-medium">行业/地域</th>
+                            <th class="py-4 px-6 font-medium">状态</th>
+                            <th class="py-4 px-6 font-medium text-right">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resourcesTableBody" class="text-sm divide-y divide-gray-100">
+                        <!-- 动态渲染 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let currentTab = 'leads'; // 默认显示线索池
+
+        document.addEventListener('DOMContentLoaded', () => {
+            switchTab('leads');
+        });
+
+        function switchTab(tabId) {
+            currentTab = tabId;
+
+            // 重置所有菜单样式
+            document.getElementById('nav-dashboard').className = "flex items-center px-6 py-3 text-gray-400 hover:text-white hover:bg-white/5 transition";
+            document.getElementById('nav-leads').className = "flex items-center px-6 py-3 text-gray-400 hover:text-white hover:bg-white/5 transition";
+            document.getElementById('nav-resources').className = "flex items-center px-6 py-3 text-gray-400 hover:text-white hover:bg-white/5 transition";
+
+            // 隐藏所有 Tab
+            document.getElementById('tab-dashboard').classList.add('hidden');
+            document.getElementById('tab-leads').classList.add('hidden');
+            document.getElementById('tab-resources').classList.add('hidden');
+
+            // 高亮当前菜单并显示对应 Tab
+            if (tabId === 'dashboard') {
+                document.getElementById('nav-dashboard').className = "flex items-center px-6 py-3 bg-brand/10 text-brand border-r-4 border-brand font-medium transition";
+                document.getElementById('pageTitle').innerText = "数据仪表盘";
+                document.getElementById('tab-dashboard').classList.remove('hidden');
+                fetchStats();
+            } else if (tabId === 'leads') {
+                document.getElementById('nav-leads').className = "flex items-center px-6 py-3 bg-brand/10 text-brand border-r-4 border-brand font-medium transition";
+                document.getElementById('pageTitle').innerText = "对接线索池";
+                document.getElementById('tab-leads').classList.remove('hidden');
+                fetchLeads();
+            } else if (tabId === 'resources') {
+                document.getElementById('nav-resources').className = "flex items-center px-6 py-3 bg-brand/10 text-brand border-r-4 border-brand font-medium transition";
+                document.getElementById('pageTitle').innerText = "平台资源管理";
+                document.getElementById('tab-resources').classList.remove('hidden');
+                fetchResources();
+            }
+        }
+
+        function refreshCurrentTab() {
+            switchTab(currentTab);
+        }
+
+        // 1. 获取仪表盘数据
+        async function fetchStats() {
+            try {
+                const response = await fetch('http://127.0.0.1:8000/api/admin/stats');
+                const data = await response.json();
+                document.getElementById('stat-resources').innerText = data.total_resources;
+                document.getElementById('stat-leads').innerText = data.total_leads;
+                document.getElementById('stat-vip').innerText = data.total_vip;
+            } catch (error) {
+                console.error("获取统计失败", error);
+            }
+        }
+
+        // 2. 获取线索数据
+        async function fetchLeads() {
+            const tbody = document.getElementById('leadsTableBody');
+            try {
+                const response = await fetch('http://127.0.0.1:8000/api/leads');
+                const data = await response.json();
+
+                if (data.leads && data.leads.length > 0) {
+                    tbody.innerHTML = '';
+                    data.leads.forEach(lead => {
+                        const tr = document.createElement('tr');
+                        tr.className = "hover:bg-orange-50/30 transition";
+                        tr.innerHTML = `
+                            <td class="py-4 px-6 font-medium text-gray-900">#${lead.id}</td>
+                            <td class="py-4 px-6">
+                                <span class="text-brand font-bold">${lead.resource_name}</span>
+                                <span class="text-xs text-gray-400 block">资源ID: ${lead.resource_id}</span>
+                            </td>
+                            <td class="py-4 px-6 font-medium">${lead.client_name}</td>
+                            <td class="py-4 px-6 text-gray-600 font-mono text-sm">${lead.contact_info}</td>
+                            <td class="py-4 px-6 text-gray-500 max-w-xs truncate" title="${lead.message}">${lead.message || '无留言'}</td>
+                            <td class="py-4 px-6 text-right">
+                                <button onclick="copyContact('${lead.contact_info}')" class="text-xs bg-brand/10 text-brand hover:bg-brand hover:text-white py-1 px-3 rounded transition">
+                                    复制联系方式
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="6" class="py-12 text-center text-gray-400"><div class="text-4xl mb-2">📭</div>暂无客户提交对接线索</td></tr>';
+                }
+            } catch (error) {
+                tbody.innerHTML = '<tr><td colspan="6" class="py-12 text-center text-red-500">加载失败，请确保后端服务已启动。</td></tr>';
+                console.error(error);
+            }
+        }
+
+        // 3. 获取资源数据 (并支持删除)
+        async function fetchResources() {
+            const tbody = document.getElementById('resourcesTableBody');
+            try {
+                const response = await fetch('http://127.0.0.1:8000/api/resources');
+                const data = await response.json();
+
+                if (data.resources && data.resources.length > 0) {
+                    tbody.innerHTML = '';
+                    data.resources.forEach(res => {
+                        const tr = document.createElement('tr');
+                        tr.className = "hover:bg-gray-50 transition";
+                        tr.innerHTML = `
+                            <td class="py-4 px-6 font-medium text-gray-900">#${res.id}</td>
+                            <td class="py-4 px-6 font-bold text-gray-800">${res.name}</td>
+                            <td class="py-4 px-6 text-gray-500">
+                                ${res.industry} / ${res.region}
+                            </td>
+                            <td class="py-4 px-6">
+                                ${res.is_vip
+                                    ? '<span class="text-xs bg-brand/10 text-brand font-bold px-2 py-1 rounded">VIP置顶</span>'
+                                    : '<span class="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded">普通</span>'}
+                            </td>
+                            <td class="py-4 px-6 text-right">
+                                <button onclick="deleteResource(${res.id}, '${res.name}')" class="text-xs bg-red-50 text-red-600 hover:bg-red-500 hover:text-white py-1 px-3 rounded transition">
+                                    下架删除
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="5" class="py-12 text-center text-gray-400"><div class="text-4xl mb-2">📦</div>暂无发布资源</td></tr>';
+                }
+            } catch (error) {
+                tbody.innerHTML = '<tr><td colspan="5" class="py-12 text-center text-red-500">加载失败。</td></tr>';
+            }
+        }
+
+        // 4. 删除资源操作
+        async function deleteResource(id, name) {
+            if (!confirm(`⚠️ 确定要下架并删除资源【${name}】吗？\n该操作不可逆，删除后将无法被用户搜索到。`)) return;
+
+            try {
+                const res = await fetch(`http://127.0.0.1:8000/api/resources/${id}`, {
+                    method: 'DELETE'
+                });
+                if (res.ok) {
+                    showToast("✅ 资源已成功下架删除");
+                    fetchResources(); // 刷新列表
+                } else {
+                    alert("删除失败，请检查后端报错。");
+                }
+            } catch (error) {
+                alert("网络错误：" + error.message);
+            }
+        }
+
+        // 复制功能悬浮提示
+        function copyContact(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast(`已复制: ${text}`);
+            }).catch(err => {
+                alert("复制失败，请手动选中复制");
+            });
+        }
+
+        function showToast(msg) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-xl z-50 text-sm font-medium transition-opacity duration-300';
+            toast.innerText = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
