@@ -1,3 +1,5 @@
 [project]
 name = "xinghuo-backend"
+version = "0.1.0"
+description = "星火引力后端服务"
 requires-python = ">=3.10,<3.14"
