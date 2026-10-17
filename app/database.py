@@ -3,24 +3,20 @@ from pathlib import Path
 from sqlalchemy import create_engine, Column, Integer, String, Text, Boolean
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-# 获取环境变量（本地跑默认用本地sqlite，云端跑读Turso）
 TURSO_DATABASE_URL = os.getenv("TURSO_DATABASE_URL")
 TURSO_AUTH_TOKEN = os.getenv("TURSO_AUTH_TOKEN")
 
 if TURSO_DATABASE_URL and TURSO_AUTH_TOKEN:
-    # 云端环境：连接 Turso
     print("🚀 正在连接 Turso 云数据库...")
-    # 提取 host 部分（去掉 libsql://）
-    host = TURSO_DATABASE_URL.replace("libsql://", "").replace("https://", "")
-    # 强制使用 secure=true 解决 308 重定向问题
-    SQLALCHEMY_DATABASE_URL = f"sqlite+libsql://{host}?secure=true"
+    # 核心修复：用 .strip() 强制去掉可能混入的换行符或空格
+    host = TURSO_DATABASE_URL.replace("libsql://", "").replace("https://", "").strip()
+    token = TURSO_AUTH_TOKEN.strip()
 
-    engine = create_engine(
-        SQLALCHEMY_DATABASE_URL,
-        connect_args={"auth_token": TURSO_AUTH_TOKEN}  # Token 放在这里更安全
-    )
+    SQLALCHEMY_DATABASE_URL = f"sqlite+libsql://{host}?secure=true&authToken={token}"
+
+    # 注意：这里不再使用 connect_args，直接全拼在 URL 里
+    engine = create_engine(SQLALCHEMY_DATABASE_URL)
 else:
-    # 本地环境：连接本地 SQLite
     print("💻 正在连接本地 SQLite 数据库...")
     BASE_DIR = Path(__file__).resolve().parent.parent
     DB_PATH = BASE_DIR / "xinshangquan.db"
@@ -52,5 +48,8 @@ class Lead(Base):
     message = Column(Text)
 
 
-# 创建表 (首次连云端会自动建表)
-Base.metadata.create_all(bind=engine)
+try:
+    Base.metadata.create_all(bind=engine)
+    print("✅ 数据库表初始化完成")
+except Exception as e:
+    print(f"❌ 数据库初始化失败: {e}")
