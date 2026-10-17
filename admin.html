@@ -189,7 +189,7 @@
         // 1. 获取仪表盘数据
         async function fetchStats() {
             try {
-                const response = await fetch('http://127.0.0.1:8000/api/admin/stats');
+                const response = await fetch('https://xinghuo-backend.fastapicloud.dev/api/admin/stats');
                 const data = await response.json();
                 document.getElementById('stat-resources').innerText = data.total_resources;
                 document.getElementById('stat-leads').innerText = data.total_leads;
@@ -203,7 +203,7 @@
         async function fetchLeads() {
             const tbody = document.getElementById('leadsTableBody');
             try {
-                const response = await fetch('http://127.0.0.1:8000/api/leads');
+                const response = await fetch('https://xinghuo-backend.fastapicloud.dev/api/leads');
                 const data = await response.json();
 
                 if (data.leads && data.leads.length > 0) {
@@ -241,7 +241,7 @@
         async function fetchResources() {
             const tbody = document.getElementById('resourcesTableBody');
             try {
-                const response = await fetch('http://127.0.0.1:8000/api/resources');
+                const response = await fetch('https://xinghuo-backend.fastapicloud.dev/api/resources');
                 const data = await response.json();
 
                 if (data.resources && data.resources.length > 0) {
@@ -281,7 +281,7 @@
             if (!confirm(`⚠️ 确定要下架并删除资源【${name}】吗？\n该操作不可逆，删除后将无法被用户搜索到。`)) return;
 
             try {
-                const res = await fetch(`http://127.0.0.1:8000/api/resources/${id}`, {
+                const res = await fetch(`https://xinghuo-backend.fastapicloud.dev/api/resources/${id}`, {
                     method: 'DELETE'
                 });
                 if (res.ok) {
