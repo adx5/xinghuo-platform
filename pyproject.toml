@@ -3,3 +3,11 @@ name = "xinghuo-backend"
 version = "0.1.0"
 description = "星火引力后端服务"
 requires-python = ">=3.10,<3.14"
+
+# 明确告诉 setuptools 去查找 app 包
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+# 明确告诉 FastAPI Cloud 应用的入口点
+[tool.fastapi]
+entrypoint = "app.server:app"
