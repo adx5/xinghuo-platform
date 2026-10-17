@@ -6,7 +6,7 @@ from app.deepseek_client import chat_json
 
 def safety_check(text: str) -> dict:
     system = (
-        "你是信商圈平台的内容安全审核员。对用户发布的需求进行合规校验。"
+        "你是星火引力平台的内容安全审核员。对用户发布的需求进行合规校验。"
         "输出严格 JSON，字段：risk_score (0-1 浮点数), "
         "violation_tags (字符串数组，如 ['虚假宣传','资质缺失'] 或 []), "
         "reason (一句话说明判定依据)。risk_score >= 0.7 视为不通过。"
@@ -38,7 +38,7 @@ def safety_check(text: str) -> dict:
 
 def structure_need(text: str) -> dict:
     system = (
-        "你是信商圈平台的需求结构化助手。把用户需求解析为 JSON。"
+        "你是星火引力平台的需求结构化助手。把用户需求解析为 JSON。"
         "字段：industry, region, resource_type, cooperation_mode, budget, keywords。"
         "keywords 是字符串数组。未知字段填 unknown 或空数组。只输出 JSON。"
     )
@@ -66,7 +66,7 @@ def match_candidates(structured_need: dict, pool: list, retry_hint: str | None =
         return {"candidates": []}
 
     system = (
-        "你是信商圈平台的资源匹配专家。只从给定候选资源池中选择，禁止编造 resource_id。"
+        "你是星火引力平台的资源匹配专家。只从给定候选资源池中选择，禁止编造 resource_id。"
         "输出 JSON 对象，格式为 {\"candidates\":[{\"resource_id\":\"...\",\"match_score\":0.0,\"reason\":\"...\"}]}。"
         "reason 必须包含行业、地域、资源类型等可验证事实，禁止空话。最多返回 5 个。"
     )

@@ -1,41 +1,36 @@
-# 信商圈 MVP：安全校验 -> 需求结构化 -> 匹配 -> 门控重试
+# 星火引力｜品牌增长资源撮合平台
 
-这是一个基于 DeepSeek + LangGraph 的最小可运行闭环。
+星火引力｜聚星火之力，引商业共生。
 
-## 目录
+这是一个基于 **FastAPI + LangGraph + DeepSeek** 的智能商业资源撮合平台。通过 AI 语义理解，实现需求发布、安全风控、智能匹配与线索对接的完整商业闭环。
 
-- app/config.py：环境变量与阈值
-- app/schemas.py：LangGraph 共享状态定义
-- app/deepseek_client.py：DeepSeek OpenAI 兼容客户端与 JSON 解析
-- app/agents.py：安全校验、需求结构化、匹配智能体
-- app/graph.py：LangGraph 图、条件边、重试门控
-- app/main.py：示例入口
-- data/resource_pool.json：示例资源池
+## 🌟 核心功能
 
-## 运行
+- **引力撮合**：基于大模型的语义理解，精准匹配商业供需双方。
+- **安全拦截**：同步内容风控，自动识别并拦截虚假宣传与黑产信息。
+- **资源节点库**：支持商业资源发布，并包含 VIP 流量置顶（引力加速）机制。
+- **线索收集**：真实对接弹窗，收集客户联系方式与需求留言。
+- **运营后台**：数据仪表盘、线索池管理、资源上下架管理。
 
-~~~bash
-python -m venv .venv
-source .venv/bin/activate
-# Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-cp .env.example .env
-# 编辑 .env，填入 DEEPSEEK_API_KEY
-python -m app.main
-~~~
+## 🏗️ 技术架构
 
-## 当前闭环
+- **前端**：原生 HTML + Tailwind CSS + Fetch API（托管于 GitHub Pages）
+- **后端 API**：FastAPI（部署于 FastAPI Cloud）
+- **AI 工作流**：LangGraph（状态管理、条件路由、重试门控）
+- **大语言模型**：DeepSeek API（OpenAI 兼容格式）
+- **云数据库**：Turso (libsql) 云端持久化存储
 
-1. 内容安全智能体同步校验，risk_score >= 0.7 直接拒绝。
-2. 需求结构化智能体输出行业、地域、资源类型、合作模式、预算、关键词。
-3. 匹配智能体只从给定资源池中选择，禁止编造 resource_id，最多返回 5 个候选。
-4. 领航员门控检查候选是否为空、匹配理由是否过短、分数是否过低。
-5. 不达标则重试，最多 2 轮；超过后进入 exhausted，避免无限循环。
-6. 达标进入 matched。
+## 📂 项目结构
 
-## 下一步
-
-- 把 resource_pool.json 换成真实资源池。
-- 资源入库时做 Embedding，先粗召回 Top-K，再交给匹配智能体精排。
-- 为付费、流量托管、账号权限变更加入人工审批门。
-- 把运营召回、风控告警做成事件驱动旁路，不要挤占主链路上下文。
+```text
+├── app/                  # 后端核心代码
+│   ├── server.py         # FastAPI 路由与 API 入口
+│   ├── graph.py          # LangGraph 工作流编排
+│   ├── agents.py         # 安全、结构化、匹配等智能体
+│   ├── database.py       # 数据库模型与 Turso 连接
+│   └── vector_store.py   # 本地语义检索算法
+├── data/                 # 本地资源池数据
+├── index.html            # 前台首页（引力撮合/资源库）
+├── admin.html            # 运营管理后台
+├── requirements.txt      # Python 依赖
+└── pyproject.toml        # FastAPI Cloud 部署配置
