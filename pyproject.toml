@@ -5,12 +5,17 @@ description = "星火引力后端服务"
 requires-python = ">=3.10,<3.14"
 dependencies = [
     "fastapi[standard]",
+    "uvicorn",
+    "openai",
+    "python-dotenv",
+    "sqlalchemy",
+    "langgraph",
+    "sqlalchemy-libsql",
+    "libsql-client",
 ]
 
-# 1. 显式告诉 setuptools 只查找并打包 app 目录
 [tool.setuptools.packages.find]
 include = ["app*"]
 
-# 2. 告诉 FastAPI Cloud 应用的入口点是 app.server 模块中的 app 对象
 [tool.fastapi]
 entrypoint = "app.server:app"
