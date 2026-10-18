@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from sqlalchemy import create_engine, Column, Integer, String, Text, Boolean, text
+from sqlalchemy import create_engine, Column, Integer, String, Text, Boolean
 from sqlalchemy.orm import declarative_base, sessionmaker
 from app.seed_data import INITIAL_RESOURCES
 
@@ -72,30 +72,10 @@ def seed_initial_data():
 
         # 如果没数据，播种
         if current_count == 0:
-            print("🌱 检测到数据库为空，正在注入资源...")
+            print("🌱 检测到数据库为空，正在注入 30 条带有专属编码的演示资源...")
             for res_data in INITIAL_RESOURCES:
                 db.add(Resource(**res_data))
             db.commit()
-
-        # 检查是否有资源缺少 resource_code，或者强制刷新一次所有编码（确保马甲占950段）
-        all_resources = db.query(Resource).all()
-        need_update = False
-        for res in all_resources:
-            prefix = get_prefix(res.industry or "未知")
-            # 核心：1-30 对应 950-979
-            if 1 <= res.id <= 30:
-                code_num = 949 + res.id
-            else:
-                code_num = res.id - 30
-
-            new_code = f"{prefix}{code_num:04d}"
-            if res.resource_code != new_code:
-                res.resource_code = new_code
-                need_update = True
-
-        if need_update:
-            db.commit()
-            print("✅ 历史数据编码已全量刷新为 950 段黄金编号！")
 
     except Exception as e:
         print(f"❌ 数据操作失败: {e}")
