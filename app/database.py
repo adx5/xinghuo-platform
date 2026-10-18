@@ -40,6 +40,7 @@ class Lead(Base):
     resource_name = Column(String(100))
     client_name = Column(String(50))
     contact_info = Column(String(100))
+    address = Column(String(200))  # 新增：客户地址
     message = Column(Text)
 
 # 🌟 新增：大客户微官网表

@@ -132,9 +132,11 @@
                 <div id="resourceList" class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-5"></div>
             </div>
 
-            <!-- 右侧：发布区 -->
+            <!-- 右侧：发布区与留资专区 -->
             <div id="publish" class="lg:col-span-4 relative mt-4 lg:mt-0">
                 <div class="sticky top-20 sm:top-24 space-y-4 sm:space-y-6">
+
+                    <!-- 模块 A：发布商业资源 -->
                     <div class="bg-white rounded-2xl shadow-md border border-gray-100 p-4 sm:p-5">
                         <h3 class="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
                             <svg class="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
@@ -142,7 +144,6 @@
                         </h3>
                         <form onsubmit="return false;" class="space-y-2 sm:space-y-3">
                             <input type="text" id="resName" placeholder="资源名称 (如: 川渝汽车联盟)" class="w-full bg-gray-50 border border-gray-200 p-2.5 rounded-lg text-sm focus:outline-none focus:border-brand">
-
                             <div class="grid grid-cols-2 gap-2">
                                 <select id="resIndustry" class="w-full bg-gray-50 border border-gray-200 p-2.5 rounded-lg text-sm focus:outline-none focus:border-brand text-gray-700">
                                     <option value="本地生活">本地生活</option>
@@ -153,13 +154,11 @@
                                     <option value="企业服务">企业服务</option>
                                     <option value="其他">其他行业</option>
                                 </select>
-
                                 <div class="flex gap-1">
                                     <select id="resRegionGroup" onchange="updateProvinces()" class="w-1/2 bg-gray-50 border border-gray-200 p-2.5 rounded-lg text-xs focus:outline-none focus:border-brand text-gray-700"></select>
                                     <select id="resRegionProvince" class="w-1/2 bg-gray-50 border border-gray-200 p-2.5 rounded-lg text-xs focus:outline-none focus:border-brand text-gray-700"></select>
                                 </div>
                             </div>
-
                             <select id="resType" class="w-full bg-gray-50 border border-gray-200 p-2.5 rounded-lg text-sm focus:outline-none focus:border-brand text-gray-700">
                                 <option value="短视频/达人">短视频/达人</option>
                                 <option value="线下媒体/电梯">线下媒体/电梯</option>
@@ -169,19 +168,41 @@
                                 <option value="技术/代运营">技术/代运营</option>
                                 <option value="其他资源">其他资源</option>
                             </select>
-
-                            <textarea id="resDesc" placeholder="详细描述您的资源..." class="w-full bg-gray-50 border border-gray-200 p-2.5 rounded-lg text-sm focus:outline-none focus:border-brand resize-none" rows="3"></textarea>
+                            <textarea id="resDesc" placeholder="详细描述您的资源..." class="w-full bg-gray-50 border border-gray-200 p-2.5 rounded-lg text-sm focus:outline-none focus:border-brand resize-none" rows="2"></textarea>
 
                             <label class="flex items-center gap-2 px-1 py-1 cursor-pointer">
                                 <input type="checkbox" id="resVip" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand bg-gray-100 border-gray-300 rounded focus:ring-brand cursor-pointer">
-                                <span class="text-xs sm:text-sm text-gray-600 select-none leading-tight">申请优先推荐展示</span>
+                                <span class="text-xs sm:text-sm text-gray-600 select-none leading-tight">申请优先推荐展示 (99元流量包)</span>
                             </label>
-
                             <button type="button" onclick="publishResource()" class="w-full bg-ink-blue hover:bg-gray-800 text-white font-bold text-sm sm:text-base py-2.5 rounded-xl transition-colors shadow-sm">
                                 确认发布资源
                             </button>
                         </form>
                     </div>
+
+                    <!-- 模块 B：纯需求留资表单 -->
+                    <div class="bg-gray-900 rounded-2xl shadow-md p-5 text-white">
+                        <h3 class="text-base font-bold mb-2 flex items-center gap-2">
+                            <span class="text-yellow-500 text-xl">👑</span> 找不到资源？直接留资
+                        </h3>
+                        <p class="text-xs text-gray-300 mb-4">提交您的需求，专属商务顾问为您精准匹配（可选VIP极速对接）</p>
+                        <form onsubmit="return false;" class="space-y-2">
+                            <input type="text" id="vipLeadName" placeholder="您的称呼 (如: 王总)" class="w-full bg-gray-800 border border-gray-700 p-2.5 rounded-lg text-sm focus:outline-none focus:border-brand">
+                            <input type="text" id="vipLeadContact" placeholder="电话 / 微信" class="w-full bg-gray-800 border border-gray-700 p-2.5 rounded-lg text-sm focus:outline-none focus:border-brand">
+                            <input type="text" id="vipLeadAddress" placeholder="所在地址" class="w-full bg-gray-800 border border-gray-700 p-2.5 rounded-lg text-sm focus:outline-none focus:border-brand">
+                            <textarea id="vipLeadMsg" placeholder="您的需求（如：想在郑州找餐饮探店达人）..." class="w-full bg-gray-800 border border-gray-700 p-2.5 rounded-lg text-sm focus:outline-none focus:border-brand resize-none" rows="2"></textarea>
+
+                            <label class="flex items-center gap-2 px-1 py-1 cursor-pointer">
+                                <input type="checkbox" id="vipIntent" class="w-4 h-4 text-brand bg-gray-700 border-gray-600 rounded focus:ring-brand cursor-pointer">
+                                <span class="text-xs text-gray-300 select-none">申请优先推荐展示</span>
+                            </label>
+
+                            <button type="button" onclick="submitDemandLead()" class="w-full bg-brand hover:bg-brand-hover text-white font-bold text-sm py-2.5 rounded-xl transition-colors shadow-sm">
+                                提交需求，获取方案
+                            </button>
+                        </form>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -219,7 +240,7 @@
         </div>
     </footer>
 
-    <!-- 线索弹窗 -->
+    <!-- 线索弹窗 (只留给资源申请对接用) -->
     <div id="leadModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] hidden items-center justify-center p-3 sm:p-4">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-95 opacity-0" id="leadModalContent">
             <div class="bg-ink-blue px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center text-white">
@@ -239,6 +260,10 @@
                     <div>
                         <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">联系方式 (手机/微信)</label>
                         <input type="text" id="leadContact" placeholder="方便对方与您联系" class="w-full border border-gray-300 rounded-lg p-2 sm:p-2.5 text-sm sm:text-base focus:ring-2 focus:ring-brand focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">地址 (选填)</label>
+                        <input type="text" id="leadAddress" placeholder="所在城市或地址" class="w-full border border-gray-300 rounded-lg p-2 sm:p-2.5 text-sm sm:text-base focus:ring-2 focus:ring-brand focus:outline-none">
                     </div>
                     <div>
                         <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">补充留言 (选填)</label>
@@ -265,13 +290,13 @@
         let bannerTimer = null;
         let currentBannerIndex = 0;
         let bannersData = [];
+        let currentResources = []; // 存一份当前资源列表，防止字符串拼接出错
 
-        // 页面加载完成后执行
         document.addEventListener('DOMContentLoaded', async () => {
-            await fetchRegions();   // 加载地域下拉框
-            await fetchVipBanners(); // 加载轮播图
-            fetchResourceList();    // 加载 30 条数据
-            playDemoAnimation();    // 启动演示动画
+            await fetchRegions();
+            await fetchVipBanners();
+            fetchResourceList();
+            playDemoAnimation();
 
             demoTimer = setInterval(playDemoAnimation, 6000);
             const demoAreaEl = document.getElementById('demoResultArea');
@@ -281,7 +306,7 @@
             }
         });
 
-        // ================= 地域联动逻辑 =================
+        // 地域联动
         async function fetchRegions() {
             try {
                 const response = await fetch('https://xinghuo-backend.fastapicloud.dev/api/regions');
@@ -293,7 +318,7 @@
                     groupSelect.innerHTML += `<option value="${group}">${group}</option>`;
                 }
                 updateProvinces();
-            } catch (e) { console.error("加载地域失败", e); }
+            } catch (e) { console.error(e); }
         }
 
         function updateProvinces() {
@@ -306,7 +331,7 @@
             });
         }
 
-        // ================= 轮播图逻辑 =================
+        // 轮播图逻辑
         async function fetchVipBanners() {
             try {
                 const res = await fetch('https://xinghuo-backend.fastapicloud.dev/api/vips');
@@ -316,7 +341,6 @@
                     const container = document.getElementById('vipBannerCarousel');
                     const dotsContainer = document.getElementById('bannerDots');
                     document.getElementById('vipBannerContainer').classList.remove('hidden');
-
                     bannersData.forEach((vip, index) => {
                         container.innerHTML += `
                             <div class="w-full h-full flex-shrink-0 cursor-pointer" onclick="window.open('vip.html?id=${vip.id}', '_blank')">
@@ -325,7 +349,6 @@
                         `;
                         dotsContainer.innerHTML += `<div class="w-2 h-2 rounded-full bg-white/50 transition-colors ${index===0?'bg-white w-4':''}" id="dot-${index}"></div>`;
                     });
-
                     if (bannersData.length > 1) {
                         bannerTimer = setInterval(() => {
                             currentBannerIndex = (currentBannerIndex + 1) % bannersData.length;
@@ -333,7 +356,7 @@
                         }, 4000);
                     }
                 }
-            } catch (e) { console.error("加载轮播图失败", e); }
+            } catch (e) { console.error(e); }
         }
 
         function updateBannerPosition() {
@@ -346,16 +369,17 @@
             });
         }
 
-        // ================= 首页数据渲染逻辑 =================
+        // 首页资源列表
         async function fetchResourceList() {
             const listContainer = document.getElementById('resourceList');
             try {
                 const response = await fetch('https://xinghuo-backend.fastapicloud.dev/api/resources');
                 const data = await response.json();
+                currentResources = data.resources || []; // 保存一份
 
-                if (data.resources && data.resources.length > 0) {
+                if (currentResources.length > 0) {
                     listContainer.innerHTML = '';
-                    data.resources.forEach(res => {
+                    currentResources.forEach(res => {
                         const card = document.createElement('div');
                         card.className = `bg-white border ${res.is_vip ? 'border-2 border-brand glow-effect bg-orange-50/20' : 'border border-gray-300'} rounded-xl p-4 sm:p-5 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between group relative overflow-hidden`;
                         card.innerHTML = `
@@ -373,7 +397,8 @@
                                 <p class="text-gray-600 text-xs sm:text-sm leading-relaxed mb-3 sm:mb-5 line-clamp-3">${res.description}</p>
                             </div>
                             <div class="border-t border-gray-100 pt-2 sm:pt-3 mt-auto">
-                                <button type="button" onclick="openLeadModal('${res.id}', '${res.name}')" class="w-full bg-brand hover:bg-brand-hover text-white text-xs sm:text-sm font-medium py-1.5 sm:py-2 rounded-lg transition shadow-sm">申请对接</button>
+                                <!-- 修复：只用 ID 传参，不带名字，避免引号冲突 -->
+                                <button type="button" onclick="openLeadModal('${res.id}')" class="w-full bg-brand hover:bg-brand-hover text-white text-xs sm:text-sm font-medium py-1.5 sm:py-2 rounded-lg transition shadow-sm">申请对接</button>
                             </div>
                         `;
                         listContainer.appendChild(card);
@@ -386,7 +411,7 @@
             }
         }
 
-        // ================= 演示动画逻辑 =================
+        // 演示动画逻辑保持不变
         const demoData = [
             { text: "谁有四川的4S店渠道能合作建充电桩？", results: [{ id: "C0001", score: 95, reason: "川渝新能源汽车渠道：完美匹配建桩需求。" }, { id: "X0003", score: 12, reason: "北京海淀区数学补习班：与新能源无关。" }] },
             { text: "我想在郑州找餐饮短视频探店达人...", results: [{ id: "L0005", score: 92, reason: "郑州本地餐饮探店矩阵：可做新店开业爆款推广。" }, { id: "A0002", score: 28, reason: "内蒙古草原牛羊养殖场：提供羊肉批发。" }] }
@@ -397,7 +422,6 @@
             const demoStatusText = document.getElementById('demoStatusText');
             const demoAreaEl = document.getElementById('demoResultArea');
             if(!inputEl || !demoAreaEl) return;
-
             if (inputEl.value.trim() !== "" || isHoveringDemo) return;
             demoAreaEl.classList.add('fade-out'); inputEl.classList.add('fade-out');
             setTimeout(() => {
@@ -415,7 +439,7 @@
             }, 500);
         }
 
-        // ================= 发布资源逻辑 =================
+        // 发布资源逻辑（修复取消也发布的 Bug）
         async function publishResource() {
             const group = document.getElementById('resRegionGroup').value;
             const province = document.getElementById('resRegionProvince').value;
@@ -427,17 +451,19 @@
                 region: finalRegion,
                 resource_type: document.getElementById('resType').value,
                 description: document.getElementById('resDesc').value,
-                is_vip: document.getElementById('resVip').checked
+                is_vip: false // 默认普通
             };
             if(!data.name || !data.description) { showToast("资源名称和详细描述不能为空", "⚠️"); return; }
 
-            if (data.is_vip) {
-                setTimeout(() => {
-                    const confirmUpgrade = window.confirm("🎉 恭喜！您的资源已准备好发布。\n\n为了让更多客户看到您的资源，您可以支付 ¥99 购买聚合流量包，将您的节点在资源库置顶展示。\n\n点击【确定】支付并发布，点击【取消】仅发布普通资源。");
-                    if (!confirmUpgrade) executePublish({...data, is_vip: false});
-                    else { showToast("支付成功！资源已获得优先推荐展示特权", "🚀"); executePublish({...data, is_vip: true}); }
-                }, 100);
-                return;
+            if (document.getElementById('resVip').checked) {
+                // 修复点：点取消就不发布，直接 return
+                const confirmUpgrade = window.confirm("🎉 恭喜！您的资源已准备好发布。\n\n为了让更多客户看到您的资源，您可以支付 ¥99 购买聚合流量包。\n\n点击【确定】支付并发布\n点击【取消】暂不发布，修改内容");
+                if (!confirmUpgrade) {
+                    showToast("已取消发布，您可以继续修改内容", "ℹ️");
+                    return;
+                }
+                data.is_vip = true;
+                showToast("支付成功！资源已获得优先推荐展示特权", "🚀");
             }
             executePublish(data);
         }
@@ -450,20 +476,25 @@
                 if (res.ok) {
                     document.getElementById('resName').value = ''; document.getElementById('resDesc').value = ''; document.getElementById('resVip').checked = false;
                     await fetchResourceList();
-                    if (!data.is_vip) showToast("引力节点发布成功！", "🎉");
+                    showToast("引力节点发布成功！", "🎉");
                 } else {
                     showToast("发布失败，请检查网络或后端", "❌");
                 }
             } catch (e) { showToast("网络错误，请稍后重试", "⚠️"); }
         }
 
-        // ================= 线索留资与弹窗逻辑 =================
+        // 线索留资弹窗逻辑 (只传 ID，内部去匹配名字)
         let currentLeadResourceId = "";
         let currentLeadResourceName = "";
 
-        function openLeadModal(resId, resName) {
-            currentLeadResourceId = resId; currentLeadResourceName = resName;
-            document.getElementById('modalResourceName').innerText = resName;
+        function openLeadModal(resId) {
+            const res = currentResources.find(r => r.id == resId);
+            if (!res) return;
+
+            currentLeadResourceId = res.id;
+            currentLeadResourceName = res.name;
+            document.getElementById('modalResourceName').innerText = res.name;
+
             const modal = document.getElementById('leadModal'); const content = document.getElementById('leadModalContent');
             modal.classList.remove('hidden'); modal.classList.add('flex');
             setTimeout(() => { content.classList.remove('scale-95', 'opacity-0'); content.classList.add('scale-100', 'opacity-100'); }, 10);
@@ -475,22 +506,73 @@
             setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
         }
 
+        // 提交资源对接线索 (包含地址)
         async function submitLead() {
-            const name = document.getElementById('leadName').value; const contact = document.getElementById('leadContact').value; const msg = document.getElementById('leadMessage').value;
+            const name = document.getElementById('leadName').value;
+            const contact = document.getElementById('leadContact').value;
+            const address = document.getElementById('leadAddress').value;
+            const msg = document.getElementById('leadMessage').value;
+
             if (!name.trim() || !contact.trim()) { showToast("请填写您的称呼和联系方式", "⚠️"); return; }
-            const data = { resource_id: currentLeadResourceId, resource_name: currentLeadResourceName, client_name: name, contact_info: contact, message: msg };
+
+            const data = {
+                resource_id: currentLeadResourceId,
+                resource_name: currentLeadResourceName,
+                client_name: name,
+                contact_info: contact,
+                address: address, // 新增
+                message: msg
+            };
+
             try {
                 const res = await fetch('https://xinghuo-backend.fastapicloud.dev/api/leads', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
                 });
                 if (res.ok) {
-                    document.getElementById('leadName').value = ''; document.getElementById('leadContact').value = ''; document.getElementById('leadMessage').value = '';
+                    document.getElementById('leadName').value = '';
+                    document.getElementById('leadContact').value = '';
+                    document.getElementById('leadAddress').value = '';
+                    document.getElementById('leadMessage').value = '';
                     closeLeadModal(); showToast("对接意向已提交，客服会尽快联系您", "🎉");
                 } else { showToast("提交失败，请稍后重试", "❌"); }
             } catch (e) { showToast("网络错误，请检查后端", "⚠️"); }
         }
 
-        // ================= AI 匹配逻辑 =================
+        // 提交纯需求留资 (新增的 B 模块)
+        async function submitDemandLead() {
+            const name = document.getElementById('vipLeadName').value;
+            const contact = document.getElementById('vipLeadContact').value;
+            const address = document.getElementById('vipLeadAddress').value;
+            const msg = document.getElementById('vipLeadMsg').value;
+            const isVipIntent = document.getElementById('vipIntent').checked;
+
+            if (!name || !contact) { showToast("请填写称呼和联系方式", "⚠️"); return; }
+
+            const data = {
+                resource_id: "DEMAND_LEAD",
+                resource_name: isVipIntent ? "【VIP需求】精准找资源" : "普通需求",
+                client_name: name,
+                contact_info: contact,
+                address: address,
+                message: msg
+            };
+
+            try {
+                const res = await fetch('https://xinghuo-backend.fastapicloud.dev/api/leads', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
+                });
+                if (res.ok) {
+                    showToast("需求已提交，专属顾问会尽快联系您", "🎉");
+                    document.getElementById('vipLeadName').value = '';
+                    document.getElementById('vipLeadContact').value = '';
+                    document.getElementById('vipLeadAddress').value = '';
+                    document.getElementById('vipLeadMsg').value = '';
+                    document.getElementById('vipIntent').checked = false;
+                } else { showToast("提交失败", "❌"); }
+            } catch (e) { showToast("网络错误，请稍后再试", "⚠️"); }
+        }
+
+        // AI 匹配逻辑
         async function submitRequirement() {
             if(demoTimer) clearInterval(demoTimer);
             document.getElementById('demoResultArea').classList.add('hidden');
@@ -533,7 +615,8 @@
                                 <p class="text-gray-600 text-xs sm:text-sm leading-relaxed mb-3 sm:mb-4"><strong class="text-gray-800">引力理由：</strong>${candidate.reason}</p>
                             </div>
                             <div class="border-t border-gray-100 pt-2 sm:pt-3 mt-auto">
-                                <button type="button" onclick="openLeadModal('${candidate.resource_id}', '引力节点${candidate.resource_id}')" class="w-full bg-brand hover:bg-brand-hover text-white text-xs sm:text-sm font-medium py-1.5 sm:py-2 rounded-lg transition shadow-sm">申请对接</button>
+                                <!-- 修复：只用 ID 传参 -->
+                                <button type="button" onclick="openLeadModal('${candidate.resource_id}')" class="w-full bg-brand hover:bg-brand-hover text-white text-xs sm:text-sm font-medium py-1.5 sm:py-2 rounded-lg transition shadow-sm">申请对接</button>
                             </div>
                         `;
                         cardsContainer.appendChild(card);
@@ -548,7 +631,6 @@
             }
         }
 
-        // ================= 全局提示框 =================
         function showToast(message, icon = "✨") {
             const toast = document.getElementById('customToast');
             if(!toast) return;

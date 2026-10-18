@@ -74,6 +74,7 @@ class LeadCreate(BaseModel):
     resource_name: str
     client_name: str
     contact_info: str
+    address: str = ""  # 新增
     message: str = ""
 class LoginRequest(BaseModel):
     password: str
