@@ -10,7 +10,10 @@ if SQLALCHEMY_DATABASE_URL:
         SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgres://", "postgresql+psycopg2://", 1)
     elif SQLALCHEMY_DATABASE_URL.startswith("postgresql://"):
         SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgresql://", "postgresql+psycopg2://", 1)
-    engine = create_engine(SQLALCHEMY_DATABASE_URL)
+
+    # 加上 pool_pre_ping=True，每次连库前先探活，防止 Neon 休眠断开报错
+    engine = create_engine(SQLALCHEMY_DATABASE_URL, pool_pre_ping=True)
+
 else:
     BASE_DIR = Path(__file__).resolve().parent.parent
     DB_PATH = BASE_DIR / "xinshangquan.db"
