@@ -3,29 +3,13 @@ from pathlib import Path
 from sqlalchemy import create_engine, Column, Integer, String, Text, Boolean
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-TURSO_DATABASE_URL = os.getenv("TURSO_DATABASE_URL")
-TURSO_AUTH_TOKEN = os.getenv("TURSO_AUTH_TOKEN")
-
-if TURSO_DATABASE_URL and TURSO_AUTH_TOKEN:
-    print("🚀 正在连接 Turso 云数据库...")
-    # 核心修复：用 .strip() 强制去掉可能混入的换行符或空格
-    host = TURSO_DATABASE_URL.replace("libsql://", "").replace("https://", "").strip()
-    token = TURSO_AUTH_TOKEN.strip()
-
-    SQLALCHEMY_DATABASE_URL = f"sqlite+libsql://{host}?secure=true&authToken={token}"
-
-    # 注意：这里不再使用 connect_args，直接全拼在 URL 里
-    engine = create_engine(SQLALCHEMY_DATABASE_URL)
-else:
-    print("💻 正在连接本地 SQLite 数据库...")
-    BASE_DIR = Path(__file__).resolve().parent.parent
-    DB_PATH = BASE_DIR / "xinshangquan.db"
-    SQLALCHEMY_DATABASE_URL = f"sqlite:///{DB_PATH}"
-    engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+# 🚨 强制使用云端的本地 SQLite 文件（放弃 Turso）
+print("💻 正在连接云端本地 SQLite 数据库...")
+SQLALCHEMY_DATABASE_URL = "sqlite:///./xinghuo_prod.db"
+engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
-
 
 class Resource(Base):
     __tablename__ = "resources"
@@ -37,7 +21,6 @@ class Resource(Base):
     description = Column(Text)
     is_vip = Column(Boolean, default=False)
 
-
 class Lead(Base):
     __tablename__ = "leads"
     id = Column(Integer, primary_key=True, index=True)
@@ -46,7 +29,6 @@ class Lead(Base):
     client_name = Column(String(50))
     contact_info = Column(String(100))
     message = Column(Text)
-
 
 try:
     Base.metadata.create_all(bind=engine)
