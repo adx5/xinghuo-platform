@@ -199,3 +199,4 @@ def toggle_vip(vip_id: int, db: Session = Depends(get_db)):
 
 @app.get("/")
 def root(): return {"message": "星火引力 API 正在运行"}
+@app.get("/api/regions")
