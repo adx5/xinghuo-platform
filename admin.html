@@ -2,429 +2,175 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>星火引力 - 运营管理后台</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .text-brand { color: #FF6B00; }
         .bg-brand { background-color: #FF6B00; }
-        .bg-brand-hover:hover { background-color: #E65C00; }
         .bg-ink-blue { background-color: #0F172A; }
-        .bg-ink-light { background-color: #1E293B; }
     </style>
 </head>
 <body class="bg-gray-100 font-sans text-gray-800 antialiased flex h-screen overflow-hidden">
 
-    <!-- 左侧侧边栏 -->
+    <!-- 左侧导航 -->
     <aside class="w-64 bg-ink-blue text-white flex flex-col shadow-xl z-20">
         <div class="h-16 flex items-center px-6 border-b border-gray-800">
             <div class="w-8 h-8 bg-brand rounded-full flex items-center justify-center font-bold text-lg text-white mr-3">星</div>
             <span class="font-bold text-xl tracking-wider">星火引力</span>
         </div>
         <nav class="flex-1 py-6 space-y-2">
-            <a href="#" id="nav-dashboard" onclick="switchTab('dashboard')" class="flex items-center px-6 py-3 text-gray-400 hover:text-white hover:bg-white/5 transition">
-                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-                数据仪表盘
-            </a>
-            <a href="#" id="nav-leads" onclick="switchTab('leads')" class="flex items-center px-6 py-3 text-gray-400 hover:text-white hover:bg-white/5 transition">
-                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                对接线索池
-            </a>
-            <a href="#" id="nav-resources" onclick="switchTab('resources')" class="flex items-center px-6 py-3 bg-brand/10 text-brand border-r-4 border-brand font-medium transition">
-                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                资源管理
-            </a>
+            <a href="#" id="nav-dashboard" onclick="switchTab('dashboard')" class="flex items-center px-6 py-3 text-gray-400 hover:text-white hover:bg-white/5 transition">数据仪表盘</a>
+            <a href="#" id="nav-leads" onclick="switchTab('leads')" class="flex items-center px-6 py-3 text-gray-400 hover:text-white hover:bg-white/5 transition">对接线索池</a>
+            <a href="#" id="nav-resources" onclick="switchTab('resources')" class="flex items-center px-6 py-3 text-gray-400 hover:text-white hover:bg-white/5 transition">资源管理</a>
+            <!-- 新增：大客户微官网管理 -->
+            <a href="#" id="nav-vips" onclick="switchTab('vips')" class="flex items-center px-6 py-3 bg-brand/10 text-brand border-r-4 border-brand font-medium transition">大客户管理</a>
         </nav>
-        <div class="mt-auto p-6 border-t border-gray-800 text-xs text-gray-500 text-center">
-            郑州普耀文化传媒有限公司<br>© 2026 星火引力
-        </div>
+        <div class="mt-auto p-6 text-xs text-gray-500 text-center">郑州普耀文化传媒<br>© 2026 星火引力</div>
     </aside>
 
-    <!-- 右侧主内容区 -->
     <main class="flex-1 flex flex-col relative overflow-hidden bg-gray-50">
         <header class="h-16 bg-white shadow-sm flex items-center justify-between px-8 z-10">
-            <h2 id="pageTitle" class="text-lg font-bold text-gray-800">平台资源管理</h2>
-            <div class="flex items-center gap-4">
-                <a href="https://adx5.github.io/xinghuo-platform/" target="_blank" class="text-sm text-gray-500 hover:text-brand transition flex items-center gap-1.5 border-r border-gray-200 pr-4">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                    返回前台首页
-                </a>
-                <button onclick="refreshCurrentTab()" class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 py-1.5 px-4 rounded transition flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                    刷新数据
-                </button>
-            </div>
+            <h2 id="pageTitle" class="text-lg font-bold text-gray-800">大客户管理</h2>
+            <button onclick="refreshCurrentTab()" class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 py-1.5 px-4 rounded transition">刷新数据</button>
         </header>
 
-        <!-- 资源管理 Tab -->
-        <div id="tab-resources" class="flex-1 p-8 overflow-auto">
+        <!-- 仪表盘与线索 (隐藏不写全，只留结构) -->
+        <div id="tab-dashboard" class="hidden flex-1 p-8 overflow-auto"></div>
+        <div id="tab-leads" class="hidden flex-1 p-8 overflow-auto"></div>
+        <div id="tab-resources" class="hidden flex-1 p-8 overflow-auto"></div>
 
-            <!-- 批量操作栏（默认隐藏，勾选后出现） -->
-            <div id="batchActionBar" class="hidden mb-4 bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-center justify-between">
-                <div class="text-sm text-blue-800 font-medium">已选中 <span id="selectedCount" class="font-bold text-lg">0</span> 项</div>
-                <div class="flex gap-3">
-                    <button onclick="batchUpdateVip(true)" class="text-sm bg-brand text-white px-3 py-1.5 rounded hover:bg-brand-hover transition">设为置顶</button>
-                    <button onclick="batchUpdateVip(false)" class="text-sm bg-gray-500 text-white px-3 py-1.5 rounded hover:bg-gray-600 transition">取消置顶</button>
-                    <button onclick="batchDelete()" class="text-sm bg-red-500 text-white px-3 py-1.5 rounded hover:bg-red-600 transition">批量删除</button>
+        <!-- ================= 大客户管理 ================= -->
+        <div id="tab-vips" class="flex-1 p-8 overflow-auto">
+            <div class="mb-6 flex justify-between items-center">
+                <div>
+                    <h3 class="text-xl font-bold text-gray-800">大客户微官网列表</h3>
+                    <p class="text-sm text-gray-500 mt-1">在这里管理首页轮播图和微官网详情</p>
                 </div>
+                <button onclick="openVipModal()" class="bg-ink-blue hover:bg-gray-800 text-white px-4 py-2 rounded-lg text-sm transition">+ 发布大客户</button>
             </div>
-
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                 <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-gray-50 text-gray-500 text-sm border-b border-gray-200">
-                            <th class="py-4 px-4 w-12 text-center"><input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)" class="w-4 h-4 text-brand rounded focus:ring-brand cursor-pointer"></th>
-                            <th class="py-4 px-4 font-medium">编码</th>
-                            <th class="py-4 px-4 font-medium">资源名称</th>
-                            <th class="py-4 px-4 font-medium">行业/地域</th>
-                            <th class="py-4 px-4 font-medium">状态</th>
-                            <th class="py-4 px-6 font-medium text-right">操作</th>
-                        </tr>
-                    </thead>
-                    <tbody id="resourcesTableBody" class="text-sm divide-y divide-gray-100">
-                        <!-- 动态渲染 -->
-                    </tbody>
+                    <thead><tr class="bg-gray-50 text-gray-500 text-sm border-b">
+                        <th class="py-4 px-6 font-medium">预览图</th><th class="py-4 px-6 font-medium">公司名称</th><th class="py-4 px-6 font-medium">状态</th><th class="py-4 px-6 text-right">操作</th>
+                    </tr></thead>
+                    <tbody id="vipTableBody" class="text-sm divide-y divide-gray-100"></tbody>
                 </table>
             </div>
         </div>
     </main>
 
-    <!-- 编辑资源弹窗 -->
-    <div id="editModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] hidden items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden transform transition-all scale-95 opacity-0" id="editModalContent">
+    <!-- 发布大客户弹窗 -->
+    <div id="vipModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden transform transition-all scale-95 opacity-0" id="vipModalContent">
             <div class="bg-ink-blue px-6 py-4 flex justify-between items-center text-white">
-                <h3 class="font-bold text-lg">编辑商业资源</h3>
-                <button onclick="closeEditModal()" class="text-gray-400 hover:text-white text-2xl leading-none">&times;</button>
+                <h3 class="font-bold text-lg">发布大客户微官网</h3>
+                <button onclick="closeVipModal()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
             </div>
-            <div class="p-6">
-                <input type="hidden" id="editId">
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">资源名称</label>
-                        <input type="text" id="editName" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand focus:outline-none">
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">行业</label>
-                            <input type="text" id="editIndustry" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand focus:outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">地域</label>
-                            <input type="text" id="editRegion" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand focus:outline-none">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">资源类型</label>
-                        <input type="text" id="editType" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">详细描述</label>
-                        <textarea id="editDesc" rows="3" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand focus:outline-none resize-none"></textarea>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <input type="checkbox" id="editIsVip" class="w-4 h-4 text-brand rounded focus:ring-brand cursor-pointer">
-                        <label for="editIsVip" class="text-sm text-gray-700 cursor-pointer">设置为 VIP 置顶展示</label>
-                    </div>
+            <div class="p-6 max-h-[70vh] overflow-y-auto space-y-4">
+                <div><label class="block text-sm font-medium mb-1">公司名称 / 标题</label><input type="text" id="vipTitle" class="w-full border p-2.5 rounded-lg focus:border-brand outline-none"></div>
+                <div><label class="block text-sm font-medium mb-1">轮播大图链接 (1920x600)</label><input type="text" id="vipBannerUrl" class="w-full border p-2.5 rounded-lg text-xs focus:border-brand outline-none" placeholder="https://..."></div>
+                <div><label class="block text-sm font-medium mb-1">宣传口号</label><input type="text" id="vipSlogan" class="w-full border p-2.5 rounded-lg focus:border-brand outline-none"></div>
+                <div><label class="block text-sm font-medium mb-1">企业实力介绍 (换行展示)</label><textarea id="vipIntro" rows="4" class="w-full border p-2.5 rounded-lg focus:border-brand outline-none"></textarea></div>
+                <div><label class="block text-sm font-medium mb-1">产品图集 (图片链接，用逗号隔开)</label><textarea id="vipGallery" rows="2" class="w-full border p-2.5 rounded-lg text-xs focus:border-brand outline-none" placeholder="https://img1.jpg, https://img2.jpg"></textarea></div>
+                <div><label class="block text-sm font-medium mb-1">合作案例 (多条用逗号隔开)</label><textarea id="vipCases" rows="3" class="w-full border p-2.5 rounded-lg text-xs focus:border-brand outline-none" placeholder="服务某餐饮品牌, 达成某战略合作"></textarea></div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="block text-sm font-medium mb-1">联系电话</label><input type="text" id="vipPhone" class="w-full border p-2.5 rounded-lg focus:border-brand outline-none"></div>
+                    <div><label class="block text-sm font-medium mb-1">微信号</label><input type="text" id="vipWechat" class="w-full border p-2.5 rounded-lg focus:border-brand outline-none"></div>
                 </div>
-                <div class="flex gap-3 mt-6">
-                    <button onclick="closeEditModal()" class="w-1/3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 rounded-xl transition">取消</button>
-                    <button onclick="saveEdit()" class="w-2/3 bg-brand hover:bg-brand-hover text-white font-bold py-2.5 rounded-xl transition shadow-lg">保存修改</button>
-                </div>
+                <div><label class="block text-sm font-medium mb-1">外链 (官网/抖音)</label><input type="text" id="vipExtLink" class="w-full border p-2.5 rounded-lg text-xs focus:border-brand outline-none"></div>
+            </div>
+            <div class="p-4 bg-gray-50 flex justify-end gap-3">
+                <button onclick="closeVipModal()" class="px-4 py-2 text-gray-600 bg-white border rounded-lg">取消</button>
+                <button onclick="saveVip()" class="px-4 py-2 bg-brand text-white rounded-lg hover:bg-brand-hover shadow-md">保存并上线</button>
             </div>
         </div>
     </div>
 
     <script>
-        let currentTab = 'resources'; // 默认显示资源管理
-        let selectedIds = new Set();
-        let currentResources = []; // 缓存当前数据以便编辑回显
-
-        document.addEventListener('DOMContentLoaded', () => {
-            switchTab('resources');
-        });
-
+        let currentTab = 'vips';
         function switchTab(tabId) {
             currentTab = tabId;
-            document.getElementById('nav-dashboard').className = "flex items-center px-6 py-3 text-gray-400 hover:text-white hover:bg-white/5 transition";
-            document.getElementById('nav-leads').className = "flex items-center px-6 py-3 text-gray-400 hover:text-white hover:bg-white/5 transition";
-            document.getElementById('nav-resources').className = "flex items-center px-6 py-3 text-gray-400 hover:text-white hover:bg-white/5 transition";
-
-            document.getElementById('tab-dashboard').classList.add('hidden');
-            document.getElementById('tab-leads').classList.add('hidden');
-            document.getElementById('tab-resources').classList.add('hidden');
-
-            if (tabId === 'dashboard') {
-                document.getElementById('nav-dashboard').className = "flex items-center px-6 py-3 bg-brand/10 text-brand border-r-4 border-brand font-medium transition";
-                document.getElementById('pageTitle').innerText = "数据仪表盘";
-                document.getElementById('tab-dashboard').classList.remove('hidden');
-                fetchStats();
-            } else if (tabId === 'leads') {
-                document.getElementById('nav-leads').className = "flex items-center px-6 py-3 bg-brand/10 text-brand border-r-4 border-brand font-medium transition";
-                document.getElementById('pageTitle').innerText = "对接线索池";
-                document.getElementById('tab-leads').classList.remove('hidden');
-                fetchLeads();
-            } else if (tabId === 'resources') {
-                document.getElementById('nav-resources').className = "flex items-center px-6 py-3 bg-brand/10 text-brand border-r-4 border-brand font-medium transition";
-                document.getElementById('pageTitle').innerText = "平台资源管理";
-                document.getElementById('tab-resources').classList.remove('hidden');
-                fetchResources();
-            }
+            ['dashboard','leads','resources','vips'].forEach(id => {
+                document.getElementById('nav-'+id).className = "flex items-center px-6 py-3 text-gray-400 hover:text-white hover:bg-white/5 transition";
+                document.getElementById('tab-'+id).classList.add('hidden');
+            });
+            document.getElementById('nav-'+tabId).className = "flex items-center px-6 py-3 bg-brand/10 text-brand border-r-4 border-brand font-medium transition";
+            document.getElementById('tab-'+tabId).classList.remove('hidden');
+            const titles = { dashboard: '数据仪表盘', leads: '对接线索池', resources: '平台资源管理', vips: '大客户管理' };
+            document.getElementById('pageTitle').innerText = titles[tabId];
+            if(tabId==='vips') fetchVips();
         }
-
         function refreshCurrentTab() { switchTab(currentTab); }
 
-        // --- 资源管理：获取、渲染、勾选、编辑、批量操作 ---
-
-        async function fetchResources() {
-            const tbody = document.getElementById('resourcesTableBody');
+        async function fetchVips() {
+            const tbody = document.getElementById('vipTableBody');
             try {
-                const response = await fetch('https://xinghuo-backend.fastapicloud.dev/api/resources');
-                const data = await response.json();
-                currentResources = data.resources || [];
-
-                // 重置勾选状态
-                selectedIds.clear();
-                document.getElementById('selectAll').checked = false;
-                updateBatchBar();
-
-                if (currentResources.length > 0) {
-                    tbody.innerHTML = '';
-                    currentResources.forEach(res => {
-                        const tr = document.createElement('tr');
-                        tr.className = "hover:bg-gray-50 transition";
-                        tr.innerHTML = `
-                            <td class="py-4 px-4 text-center">
-                                <input type="checkbox" value="${res.id}" onchange="toggleRowSelect(this)" class="w-4 h-4 text-brand rounded focus:ring-brand cursor-pointer row-checkbox">
+                const res = await fetch('https://xinghuo-backend.fastapicloud.dev/api/admin/vips');
+                const data = await res.json();
+                if (data.vips.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="py-10 text-center text-gray-400">暂无大客户，点击右上角发布</td></tr>'; return; }
+                tbody.innerHTML = '';
+                data.vips.forEach(v => {
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-gray-50">
+                            <td class="py-3 px-6"><img src="${v.banner_url}" class="h-12 w-32 object-cover rounded border"></td>
+                            <td class="py-3 px-6 font-bold">${v.title}</td>
+                            <td class="py-3 px-6">${v.is_active ? '<span class="text-green-600 text-xs bg-green-50 px-2 py-1 rounded">展示中</span>' : '<span class="text-gray-500 text-xs bg-gray-100 px-2 py-1 rounded">已下架</span>'}</td>
+                            <td class="py-3 px-6 text-right space-x-2">
+                                <a href="vip.html?id=${v.id}" target="_blank" class="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded">预览</a>
+                                <button onclick="toggleVip(${v.id})" class="text-xs border px-2 py-1 rounded hover:bg-gray-100">${v.is_active ? '下架' : '上架'}</button>
+                                <button onclick="deleteVip(${v.id})" class="text-xs text-red-600 border border-red-200 px-2 py-1 rounded">删除</button>
                             </td>
-                            <td class="py-4 px-4 font-mono text-xs text-brand font-bold">${res.resource_code || '-'}</td>
-                            <td class="py-4 px-4 font-bold text-gray-800 max-w-xs truncate" title="${res.name}">${res.name}</td>
-                            <td class="py-4 px-4 text-gray-500 text-xs">
-                                <span class="block">${res.industry}</span>
-                                <span class="block">${res.region}</span>
-                            </td>
-                            <td class="py-4 px-4">
-                                ${res.is_vip
-                                    ? '<span class="text-xs bg-brand/10 text-brand font-bold px-2 py-1 rounded">VIP置顶</span>'
-                                    : '<span class="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded">普通</span>'}
-                            </td>
-                            <td class="py-4 px-6 text-right space-x-2">
-                                <button onclick="openEditModal(${res.id})" class="text-xs bg-blue-50 text-blue-600 hover:bg-blue-500 hover:text-white py-1 px-3 rounded transition">
-                                    编辑
-                                </button>
-                                <button onclick="deleteResource(${res.id}, '${res.name}')" class="text-xs bg-red-50 text-red-600 hover:bg-red-500 hover:text-white py-1 px-3 rounded transition">
-                                    删除
-                                </button>
-                            </td>
-                        `;
-                        tbody.appendChild(tr);
-                    });
-                } else {
-                    tbody.innerHTML = '<tr><td colspan="6" class="py-12 text-center text-gray-400"><div class="text-4xl mb-2">📦</div>暂无发布资源</td></tr>';
-                }
-            } catch (error) {
-                tbody.innerHTML = '<tr><td colspan="6" class="py-12 text-center text-red-500">加载失败。</td></tr>';
-            }
-        }
-
-        // 行勾选逻辑
-        function toggleRowSelect(checkbox) {
-            const id = parseInt(checkbox.value);
-            if (checkbox.checked) {
-                selectedIds.add(id);
-            } else {
-                selectedIds.delete(id);
-                document.getElementById('selectAll').checked = false;
-            }
-            updateBatchBar();
-        }
-
-        // 全选逻辑
-        function toggleSelectAll(selectAllCheckbox) {
-            const isChecked = selectAllCheckbox.checked;
-            const checkboxes = document.querySelectorAll('.row-checkbox');
-            checkboxes.forEach(cb => {
-                cb.checked = isChecked;
-                const id = parseInt(cb.value);
-                if (isChecked) selectedIds.add(id);
-                else selectedIds.delete(id);
-            });
-            updateBatchBar();
-        }
-
-        // 更新批量操作栏显示状态
-        function updateBatchBar() {
-            const bar = document.getElementById('batchActionBar');
-            const count = selectedIds.size;
-            document.getElementById('selectedCount').innerText = count;
-            if (count > 0) {
-                bar.classList.remove('hidden');
-            } else {
-                bar.classList.add('hidden');
-            }
-        }
-
-        // 批量删除
-        async function batchDelete() {
-            if (!confirm(`⚠️ 确定要删除选中的 ${selectedIds.size} 条资源吗？该操作不可逆！`)) return;
-            try {
-                const res = await fetch('https://xinghuo-backend.fastapicloud.dev/api/resources/batch_delete', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ids: Array.from(selectedIds) })
+                        </tr>
+                    `;
                 });
-                if (res.ok) {
-                    showToast("✅ 批量删除成功");
-                    fetchResources();
-                }
-            } catch (e) { alert("网络错误"); }
+            } catch(e) { console.error(e); }
         }
 
-        // 批量设置 VIP
-        async function batchUpdateVip(isVip) {
-            try {
-                const res = await fetch(`https://xinghuo-backend.fastapicloud.dev/api/resources/batch_vip?is_vip=${isVip}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ids: Array.from(selectedIds) })
-                });
-                if (res.ok) {
-                    showToast(`✅ 成功更新为${isVip ? 'VIP' : '普通'}状态`);
-                    fetchResources();
-                }
-            } catch (e) { alert("网络错误"); }
+        function openVipModal() {
+            document.querySelectorAll('#vipModal input, #vipModal textarea').forEach(el => el.value = '');
+            const modal = document.getElementById('vipModal'); const content = document.getElementById('vipModalContent');
+            modal.classList.remove('hidden'); modal.classList.add('flex');
+            setTimeout(() => { content.classList.remove('scale-95', 'opacity-0'); content.classList.add('scale-100', 'opacity-100'); }, 10);
+        }
+        function closeVipModal() {
+            const modal = document.getElementById('vipModal'); const content = document.getElementById('vipModalContent');
+            content.classList.remove('scale-100', 'opacity-100'); content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
         }
 
-        // 打开编辑弹窗
-        function openEditModal(id) {
-            const res = currentResources.find(r => r.id === id);
-            if (!res) return;
-
-            document.getElementById('editId').value = res.id;
-            document.getElementById('editName').value = res.name;
-            document.getElementById('editIndustry').value = res.industry;
-            document.getElementById('editRegion').value = res.region;
-            document.getElementById('editType').value = res.resource_type;
-            document.getElementById('editDesc').value = res.description;
-            document.getElementById('editIsVip').checked = res.is_vip;
-
-            const modal = document.getElementById('editModal');
-            const content = document.getElementById('editModalContent');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            setTimeout(() => {
-                content.classList.remove('scale-95', 'opacity-0');
-                content.classList.add('scale-100', 'opacity-100');
-            }, 10);
-        }
-
-        function closeEditModal() {
-            const modal = document.getElementById('editModal');
-            const content = document.getElementById('editModalContent');
-            content.classList.remove('scale-100', 'opacity-100');
-            content.classList.add('scale-95', 'opacity-0');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            }, 300);
-        }
-
-        // 保存编辑
-        async function saveEdit() {
-            const id = document.getElementById('editId').value;
+        async function saveVip() {
             const data = {
-                name: document.getElementById('editName').value,
-                industry: document.getElementById('editIndustry').value,
-                region: document.getElementById('editRegion').value,
-                resource_type: document.getElementById('editType').value,
-                description: document.getElementById('editDesc').value,
-                is_vip: document.getElementById('editIsVip').checked
+                title: document.getElementById('vipTitle').value,
+                banner_url: document.getElementById('vipBannerUrl').value,
+                slogan: document.getElementById('vipSlogan').value,
+                intro: document.getElementById('vipIntro').value,
+                gallery_urls: document.getElementById('vipGallery').value,
+                cases: document.getElementById('vipCases').value,
+                phone: document.getElementById('vipPhone').value,
+                wechat: document.getElementById('vipWechat').value,
+                ext_link: document.getElementById('vipExtLink').value,
+                sort_order: 0
             };
-
-            if(!data.name || !data.description) { alert("名称和描述不能为空"); return; }
-
+            if(!data.title || !data.banner_url) { alert("名称和大图链接不能为空"); return; }
             try {
-                const res = await fetch(`https://xinghuo-backend.fastapicloud.dev/api/resources/${id}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
+                const res = await fetch('https://xinghuo-backend.fastapicloud.dev/api/admin/vips', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
                 });
-                if (res.ok) {
-                    showToast("✅ 资源更新成功");
-                    closeEditModal();
-                    fetchResources();
-                } else {
-                    alert("更新失败");
-                }
-            } catch (e) { alert("网络错误"); }
+                if(res.ok) { closeVipModal(); fetchVips(); } else { alert("失败"); }
+            } catch(e) { alert("网络错误"); }
         }
 
-        // 单个删除
-        async function deleteResource(id, name) {
-            if (!confirm(`⚠️ 确定要下架并删除资源【${name}】吗？`)) return;
-            try {
-                const res = await fetch(`https://xinghuo-backend.fastapicloud.dev/api/resources/${id}`, { method: 'DELETE' });
-                if (res.ok) { showToast("✅ 资源已删除"); fetchResources(); }
-            } catch (e) { alert("网络错误"); }
+        async function toggleVip(id) {
+            await fetch(`https://xinghuo-backend.fastapicloud.dev/api/admin/vips/${id}/toggle`, { method: 'PUT' });
+            fetchVips();
+        }
+        async function deleteVip(id) {
+            if(!confirm('确定删除吗？')) return;
+            await fetch(`https://xinghuo-backend.fastapicloud.dev/api/admin/vips/${id}`, { method: 'DELETE' });
+            fetchVips();
         }
 
-        // --- 仪表盘与线索 ---
-
-        async function fetchStats() {
-            try {
-                const response = await fetch('https://xinghuo-backend.fastapicloud.dev/api/admin/stats');
-                const data = await response.json();
-                document.getElementById('stat-resources').innerText = data.total_resources;
-                document.getElementById('stat-leads').innerText = data.total_leads;
-                document.getElementById('stat-vip').innerText = data.total_vip;
-            } catch (error) { console.error(error); }
-        }
-
-        async function fetchLeads() {
-            const tbody = document.getElementById('leadsTableBody');
-            try {
-                const response = await fetch('https://xinghuo-backend.fastapicloud.dev/api/leads');
-                const data = await response.json();
-                if (data.leads && data.leads.length > 0) {
-                    tbody.innerHTML = '';
-                    data.leads.forEach(lead => {
-                        const tr = document.createElement('tr');
-                        tr.className = "hover:bg-orange-50/30 transition";
-                        tr.innerHTML = `
-                            <td class="py-4 px-6 font-medium text-gray-900">#${lead.id}</td>
-                            <td class="py-4 px-6"><span class="text-brand font-bold">${lead.resource_name}</span></td>
-                            <td class="py-4 px-6 font-medium">${lead.client_name}</td>
-                            <td class="py-4 px-6 text-gray-600 font-mono text-sm">${lead.contact_info}</td>
-                            <td class="py-4 px-6 text-gray-500 max-w-xs truncate">${lead.message || '无留言'}</td>
-                            <td class="py-4 px-6 text-right">
-                                <button onclick="copyContact('${lead.contact_info}')" class="text-xs bg-brand/10 text-brand hover:bg-brand hover:text-white py-1 px-3 rounded transition">复制联系方式</button>
-                            </td>
-                        `;
-                        tbody.appendChild(tr);
-                    });
-                } else {
-                    tbody.innerHTML = '<tr><td colspan="6" class="py-12 text-center text-gray-400"><div class="text-4xl mb-2">📭</div>暂无客户提交对接线索</td></tr>';
-                }
-            } catch (error) {
-                tbody.innerHTML = '<tr><td colspan="6" class="py-12 text-center text-red-500">加载失败。</td></tr>';
-            }
-        }
-
-        function copyContact(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                showToast(`已复制: ${text}`);
-            }).catch(err => alert("复制失败"));
-        }
-
-        function showToast(msg) {
-            const toast = document.createElement('div');
-            toast.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-xl z-[200] text-sm font-medium transition-opacity duration-300';
-            toast.innerText = msg;
-            document.body.appendChild(toast);
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                setTimeout(() => toast.remove(), 300);
-            }, 2000);
-        }
+        document.addEventListener('DOMContentLoaded', () => { switchTab('vips'); });
     </script>
 </body>
 </html>

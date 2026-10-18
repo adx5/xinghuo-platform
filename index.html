@@ -53,12 +53,22 @@
             <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-4 sm:mb-6 leading-tight">
                 <span class="text-brand">聚星火之力</span>，引商业共生
             </h1>
-            <p class="text-sm sm:text-lg md:text-xl text-gray-400 mb-8 sm:mb-12 max-w-2xl mx-auto leading-relaxed">
+                        <p class="text-sm sm:text-lg md:text-xl text-gray-400 mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed">
                 链接品牌、媒体、达人、广告流量与本地生活服务资源。<br class="hidden sm:block">
                 <span class="block mt-1 sm:mt-2">不止于信息黄页。<br class="sm:hidden">可检索、可认证、可对接的商业资源聚合门户。</span>
             </p>
 
-            <div id="match" class="max-w-3xl mx-auto relative group">
+            <!-- 🌟 新增：首页轮播图 -->
+            <div id="vipBannerContainer" class="max-w-4xl mx-auto mb-10 relative overflow-hidden rounded-2xl hidden shadow-2xl group">
+                <div id="vipBannerCarousel" class="flex transition-transform duration-500 ease-in-out h-[200px] sm:h-[300px] md:h-[350px] w-full bg-ink-light">
+                    <!-- JS 动态插入轮播图 -->
+                </div>
+                <!-- 轮播指示器（小圆点） -->
+                <div id="bannerDots" class="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex space-x-2"></div>
+            </div>
+            <!-- 轮播图结束 -->
+
+            <div id="match" class="max-w-3xl mx-auto relative group mt-4">
                 <div class="absolute -inset-1 bg-gradient-to-r from-orange-400 to-red-500 rounded-2xl md:rounded-full blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
                 <div class="relative flex flex-col md:flex-row bg-white rounded-2xl md:rounded-full shadow-2xl p-2 border border-gray-100 items-center">
                     <div class="flex-grow flex items-center px-3 sm:px-4 w-full">
@@ -261,6 +271,64 @@
     </div>
 
     <script>
+                // ... 之前的代码 ...
+        document.addEventListener('DOMContentLoaded', async () => {
+            // 1. 加载轮播图
+            await fetchVipBanners();
+
+            fetchResourceList();
+            // ... 保持后续逻辑不变 ...
+        });
+
+        let bannerTimer = null;
+        let currentBannerIndex = 0;
+        let bannersData = [];
+
+        async function fetchVipBanners() {
+            try {
+                const res = await fetch('https://xinghuo-backend.fastapicloud.dev/api/vips');
+                const data = await res.json();
+                if (data.vips && data.vips.length > 0) {
+                    bannersData = data.vips;
+                    const container = document.getElementById('vipBannerCarousel');
+                    const dotsContainer = document.getElementById('bannerDots');
+                    document.getElementById('vipBannerContainer').classList.remove('hidden');
+
+                    // 渲染图片
+                    bannersData.forEach((vip, index) => {
+                        container.innerHTML += `
+                            <div class="w-full h-full flex-shrink-0 cursor-pointer" onclick="window.open('vip.html?id=${vip.id}', '_blank')">
+                                <img src="${vip.banner_url}" class="w-full h-full object-cover">
+                            </div>
+                        `;
+                        // 渲染小圆点
+                        dotsContainer.innerHTML += `<div class="w-2 h-2 rounded-full bg-white/50 transition-colors ${index===0?'bg-white w-4':''}" id="dot-${index}"></div>`;
+                    });
+
+                    // 自动播放（4秒）
+                    if (bannersData.length > 1) {
+                        bannerTimer = setInterval(() => {
+                            currentBannerIndex = (currentBannerIndex + 1) % bannersData.length;
+                            updateBannerPosition();
+                        }, 4000);
+                    }
+                }
+            } catch (e) { console.error("加载轮播图失败", e); }
+        }
+
+        function updateBannerPosition() {
+            const container = document.getElementById('vipBannerCarousel');
+            container.style.transform = `translateX(-${currentBannerIndex * 100}%)`;
+            // 更新小圆点
+            bannersData.forEach((_, i) => {
+                const dot = document.getElementById(`dot-${i}`);
+                if(i === currentBannerIndex) {
+                    dot.className = "w-4 h-2 rounded-full bg-white transition-all duration-300";
+                } else {
+                    dot.className = "w-2 h-2 rounded-full bg-white/50 transition-all duration-300";
+                }
+            });
+        }
         // 全局状态
         let regionData = { regions: {}, cities: {} };
 

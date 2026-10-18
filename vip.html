@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>品牌专属推荐 - 星火引力</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .text-brand { color: #FF6B00; }
+        .bg-brand { background-color: #FF6B00; }
+        .bg-ink-blue { background-color: #0F172A; }
+        .hero-bg { background-size: cover; background-position: center; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans text-gray-800 antialiased pb-20">
+
+    <!-- 顶部首屏大图 -->
+    <header id="vipHeader" class="relative w-full h-[40vh] md:h-[60vh] bg-ink-blue flex items-center justify-center text-center hero-bg">
+        <div class="absolute inset-0 bg-black/50"></div>
+        <div class="relative z-10 px-4">
+            <h1 id="vipTitle" class="text-4xl md:text-6xl font-extrabold text-white mb-4 tracking-wider">加载中...</h1>
+            <p id="vipSlogan" class="text-lg md:text-2xl text-gray-200"></p>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 -mt-10 relative z-20">
+        <!-- 公司实力介绍 -->
+        <div class="bg-white rounded-2xl shadow-xl p-6 md:p-10 mb-8 border border-gray-100">
+            <h2 class="text-2xl font-bold text-ink-blue mb-4 flex items-center gap-2">
+                <span class="w-1.5 h-6 bg-brand rounded-full"></span> 企业实力
+            </h2>
+            <p id="vipIntro" class="text-gray-600 leading-loose whitespace-pre-wrap"></p>
+        </div>
+
+        <!-- 产品图集 -->
+        <div id="gallerySection" class="mb-8 hidden">
+            <h2 class="text-2xl font-bold text-ink-blue mb-4 flex items-center gap-2">
+                <span class="w-1.5 h-6 bg-brand rounded-full"></span> 产品与实景
+            </h2>
+            <div id="galleryGrid" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
+        </div>
+
+        <!-- 合作案例 -->
+        <div id="casesSection" class="bg-white rounded-2xl shadow-xl p-6 md:p-10 mb-8 border border-gray-100 hidden">
+            <h2 class="text-2xl font-bold text-ink-blue mb-6 flex items-center gap-2">
+                <span class="w-1.5 h-6 bg-brand rounded-full"></span> 合作案例
+            </h2>
+            <ul id="casesList" class="space-y-4">
+                <!-- JS 动态生成打勾列表 -->
+            </ul>
+        </div>
+
+        <!-- 转化区块 (联系与留资) -->
+        <div class="bg-ink-blue rounded-2xl shadow-2xl p-6 md:p-10 text-white">
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- 左侧：直接联系 -->
+                <div>
+                    <h3 class="text-xl font-bold mb-6">与我们取得联系</h3>
+                    <div class="space-y-4">
+                        <button id="btnCall" class="w-full flex items-center justify-center gap-2 bg-brand hover:bg-orange-600 text-white font-bold py-3 rounded-xl transition shadow-lg">
+                            📞 <span>一键拨打电话</span>
+                        </button>
+                        <button id="btnWechat" class="w-full flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl transition shadow-lg">
+                            💬 <span>复制专属微信号</span>
+                        </button>
+                        <a id="btnLink" href="#" target="_blank" class="w-full flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white font-bold py-3 rounded-xl transition border border-white/20">
+                            🌐 <span>访问官方网站/抖音</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 右侧：留资表单 -->
+                <div class="bg-white/5 p-6 rounded-xl border border-white/10">
+                    <h3 class="text-lg font-bold mb-4">留下您的联系方式</h3>
+                    <form onsubmit="return false;" class="space-y-3">
+                        <input type="text" id="leadName" placeholder="您的称呼" class="w-full bg-white/10 border border-white/20 rounded-lg p-3 text-white placeholder-gray-400 focus:outline-none focus:border-brand">
+                        <input type="text" id="leadContact" placeholder="手机号 / 微信号" class="w-full bg-white/10 border border-white/20 rounded-lg p-3 text-white placeholder-gray-400 focus:outline-none focus:border-brand">
+                        <button onclick="submitVipLead()" class="w-full bg-brand text-white font-bold py-3 rounded-lg hover:bg-orange-600 transition">立即提交</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 返回首页按钮 -->
+    <div class="text-center mt-10">
+        <a href="https://adx5.github.io/xinghuo-platform/index.html" class="text-gray-500 hover:text-brand text-sm font-medium">← 返回星火引力首页</a>
+    </div>
+
+    <!-- 全局提示 -->
+    <div id="toast" class="fixed top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-2xl z-[200] text-sm font-medium transition-opacity duration-300 opacity-0 pointer-events-none"></div>
+
+    <script>
+        let currentVipId = new URLSearchParams(window.location.search).get('id');
+        let vipData = {};
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg; t.classList.remove('opacity-0');
+            setTimeout(() => t.classList.add('opacity-0'), 2500);
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!currentVipId) { alert("参数错误"); window.location.href = "index.html"; return; }
+
+            try {
+                const res = await fetch(`https://xinghuo-backend.fastapicloud.dev/api/vips/${currentVipId}`);
+                if (!res.ok) throw new Error();
+                vipData = await res.json();
+
+                // 渲染基础信息
+                document.title = `${vipData.title} - 星火引力推荐`;
+                document.getElementById('vipHeader').style.backgroundImage = `url('${vipData.banner_url}')`;
+                document.getElementById('vipTitle').innerText = vipData.title;
+                document.getElementById('vipSlogan').innerText = vipData.slogan;
+                document.getElementById('vipIntro').innerText = vipData.intro;
+
+                // 渲染图集
+                if (vipData.gallery_urls) {
+                    const urls = vipData.gallery_urls.split(/[,\n，]/).filter(u => u.trim() !== '');
+                    if (urls.length > 0) {
+                        document.getElementById('gallerySection').classList.remove('hidden');
+                        const grid = document.getElementById('galleryGrid');
+                        urls.forEach(url => {
+                            grid.innerHTML += `<img src="${url.trim()}" class="w-full aspect-square object-cover rounded-xl shadow-md hover:scale-105 transition duration-300">`;
+                        });
+                    }
+                }
+
+                // 渲染案例（打勾）
+                if (vipData.cases) {
+                    const caseList = vipData.cases.split(/[,\n，]/).filter(c => c.trim() !== '');
+                    if (caseList.length > 0) {
+                        document.getElementById('casesSection').classList.remove('hidden');
+                        const ul = document.getElementById('casesList');
+                        caseList.forEach(c => {
+                            ul.innerHTML += `<li class="flex items-start gap-3 text-gray-700"><span class="text-brand font-bold text-lg mt-0.5">✔</span> <span>${c.trim()}</span></li>`;
+                        });
+                    }
+                }
+
+                // 渲染转化按钮
+                if (vipData.phone) {
+                    document.getElementById('btnCall').onclick = () => window.location.href = `tel:${vipData.phone}`;
+                    document.getElementById('btnCall').querySelector('span').innerText = `致电 ${vipData.phone}`;
+                } else {
+                    document.getElementById('btnCall').style.display = 'none';
+                }
+
+                if (vipData.wechat) {
+                    document.getElementById('btnWechat').onclick = () => {
+                        navigator.clipboard.writeText(vipData.wechat).then(() => showToast('微信号已复制，请前往微信添加'));
+                    };
+                    document.getElementById('btnWechat').querySelector('span').innerText = `复制微信: ${vipData.wechat}`;
+                } else {
+                    document.getElementById('btnWechat').style.display = 'none';
+                }
+
+                if (vipData.ext_link) {
+                    document.getElementById('btnLink').href = vipData.ext_link;
+                } else {
+                    document.getElementById('btnLink').style.display = 'none';
+                }
+
+            } catch (e) {
+                alert("加载数据失败，请返回重试");
+            }
+        });
+
+        // 提交专属线索
+        async function submitVipLead() {
+            const name = document.getElementById('leadName').value;
+            const contact = document.getElementById('leadContact').value;
+            if (!name || !contact) { showToast("请填写称呼和联系方式"); return; }
+
+            const data = {
+                resource_id: `VIP_${currentVipId}`,
+                resource_name: vipData.title,
+                client_name: name,
+                contact_info: contact,
+                message: "来自微官网专属留资"
+            };
+
+            try {
+                const res = await fetch('https://xinghuo-backend.fastapicloud.dev/api/leads', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
+                });
+                if (res.ok) {
+                    showToast("🎉 提交成功，我们会尽快联系您！");
+                    document.getElementById('leadName').value = '';
+                    document.getElementById('leadContact').value = '';
+                }
+            } catch (e) { showToast("网络异常，请重试"); }
+        }
+    </script>
+</body>
+</html>

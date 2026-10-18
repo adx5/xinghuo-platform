@@ -5,24 +5,19 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 from app.seed_data import INITIAL_RESOURCES
 
 SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
-
 if SQLALCHEMY_DATABASE_URL:
-    print("🚀 正在连接 Neon PostgreSQL 云数据库...")
     if SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
         SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgres://", "postgresql+psycopg2://", 1)
     elif SQLALCHEMY_DATABASE_URL.startswith("postgresql://"):
         SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgresql://", "postgresql+psycopg2://", 1)
     engine = create_engine(SQLALCHEMY_DATABASE_URL)
 else:
-    print("💻 正在连接本地 SQLite 数据库...")
     BASE_DIR = Path(__file__).resolve().parent.parent
     DB_PATH = BASE_DIR / "xinshangquan.db"
-    SQLALCHEMY_DATABASE_URL = f"sqlite:///{DB_PATH}"
-    engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+    engine = create_engine(f"sqlite:///{DB_PATH}", connect_args={"check_same_thread": False})
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
-
 
 class Resource(Base):
     __tablename__ = "resources"
@@ -35,7 +30,6 @@ class Resource(Base):
     description = Column(Text)
     is_vip = Column(Boolean, default=False)
 
-
 class Lead(Base):
     __tablename__ = "leads"
     id = Column(Integer, primary_key=True, index=True)
@@ -45,13 +39,27 @@ class Lead(Base):
     contact_info = Column(String(100))
     message = Column(Text)
 
+# 🌟 新增：大客户微官网表
+class VipClient(Base):
+    __tablename__ = "vip_clients"
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String(100), comment="公司名称")
+    banner_url = Column(Text, comment="轮播图/首屏大图链接(1920x600)")
+    slogan = Column(String(200), comment="企业Slogan/口号")
+    intro = Column(Text, comment="企业实力介绍")
+    gallery_urls = Column(Text, comment="产品图集，多张用逗号分隔")
+    cases = Column(Text, comment="合作案例，多条用逗号分隔")
+    phone = Column(String(50), comment="联系电话")
+    wechat = Column(String(50), comment="微信号")
+    ext_link = Column(String(200), comment="官网/抖音链接")
+    is_active = Column(Boolean, default=True, comment="是否上架展示")
+    sort_order = Column(Integer, default=0, comment="排序权重")
 
 try:
     Base.metadata.create_all(bind=engine)
     print("✅ 数据库表初始化完成")
 except Exception as e:
     print(f"❌ 数据库初始化失败: {e}")
-
 
 def get_prefix(industry):
     if any(k in industry for k in ["本地", "餐饮", "生活"]): return "L"
@@ -64,23 +72,14 @@ def get_prefix(industry):
     if any(k in industry for k in ["企业", "营销", "咨询"]): return "B"
     return "X"
 
-
 def seed_initial_data():
     db = SessionLocal()
     try:
-        current_count = db.query(Resource).count()
-
-        # 如果没数据，播种
-        if current_count == 0:
-            print("🌱 检测到数据库为空，正在注入 30 条带有专属编码的演示资源...")
+        if db.query(Resource).count() == 0:
             for res_data in INITIAL_RESOURCES:
                 db.add(Resource(**res_data))
             db.commit()
-
-    except Exception as e:
-        print(f"❌ 数据操作失败: {e}")
     finally:
         db.close()
-
 
 seed_initial_data()

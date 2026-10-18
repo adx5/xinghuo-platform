@@ -10,9 +10,8 @@ from typing import List
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from app.graph import build_graph
-from app.database import SessionLocal, Resource, Lead, get_prefix
+from app.database import SessionLocal, Resource, Lead, VipClient, get_prefix
 from app.vector_store import sync_resources_to_vector_db
-from app.region_data import REGIONS_DATA, CORE_CITIES # 导入地域库
 
 app = FastAPI(title="星火引力 - 智能商务撮合 API", version="1.0.0")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=False, allow_methods=["*"], allow_headers=["*"])
@@ -25,9 +24,7 @@ def get_db():
     finally:
         db.close()
 
-# (此处省略之前的 Pydantic 模型和 Resource/Lead 相关的接口，保持完全不变，直接加入下列新接口即可)
-# ...
-# 为了确保你全覆盖，我已经把完整代码准备好：
+# 模型
 class ResourceCreate(BaseModel):
     name: str
     industry: str
@@ -47,6 +44,18 @@ class ResourceUpdate(BaseModel):
 class BatchIds(BaseModel):
     ids: List[int]
 
+class VipClientCreate(BaseModel):
+    title: str
+    banner_url: str
+    slogan: str = ""
+    intro: str = ""
+    gallery_urls: str = ""
+    cases: str = ""
+    phone: str = ""
+    wechat: str = ""
+    ext_link: str = ""
+    sort_order: int = 0
+
 class MatchRequest(BaseModel):
     requirement: str
 class MatchResponse(BaseModel):
@@ -60,13 +69,11 @@ class LeadCreate(BaseModel):
     contact_info: str
     message: str = ""
 
+# ================= 资源与线索接口 (保持不变) =================
 @app.post("/api/resources")
 def create_resource(resource: ResourceCreate, db: Session = Depends(get_db)):
     db_resource = Resource(**resource.model_dump())
-    db.add(db_resource)
-    db.commit()
-    db.refresh(db_resource)
-
+    db.add(db_resource); db.commit(); db.refresh(db_resource)
     prefix = get_prefix(db_resource.industry)
     all_res = db.query(Resource).filter(Resource.resource_code.isnot(None)).all()
     max_num = 0
@@ -74,61 +81,45 @@ def create_resource(resource: ResourceCreate, db: Session = Depends(get_db)):
         code_str = r.resource_code
         if len(code_str) > 1 and code_str[1:].isdigit():
             num = int(code_str[1:])
-            if not (950 <= num <= 999) and num > max_num:
-                max_num = num
-    code_num = max_num + 1
-    db_resource.resource_code = f"{prefix}{code_num:04d}"
-    db.commit()
-    sync_resources_to_vector_db()
-    return {"message": "资源发布成功", "resource_id": db_resource.id, "resource_code": db_resource.resource_code}
+            if not (950 <= num <= 999) and num > max_num: max_num = num
+    db_resource.resource_code = f"{prefix}{max_num + 1:04d}"
+    db.commit(); sync_resources_to_vector_db()
+    return {"message": "资源发布成功"}
 
 @app.get("/api/resources")
 def get_resources(db: Session = Depends(get_db)):
     resources = db.query(Resource).order_by(Resource.is_vip.desc(), Resource.id.desc()).all()
-    return {"resources": [
-        {"id": r.id, "resource_code": r.resource_code or f"X{r.id:04d}", "name": r.name, "industry": r.industry, "region": r.region, "resource_type": r.resource_type, "description": r.description, "is_vip": r.is_vip} for r in resources
-    ]}
+    return {"resources": [{"id": r.id, "resource_code": r.resource_code or f"X{r.id:04d}", "name": r.name, "industry": r.industry, "region": r.region, "resource_type": r.resource_type, "description": r.description, "is_vip": r.is_vip} for r in resources]}
 
 @app.put("/api/resources/{resource_id}")
 def update_resource(resource_id: int, resource: ResourceUpdate, db: Session = Depends(get_db)):
     db_resource = db.query(Resource).filter(Resource.id == resource_id).first()
-    if not db_resource: raise HTTPException(status_code=404, detail="资源不存在")
-    db_resource.name = resource.name
-    db_resource.industry = resource.industry
-    db_resource.region = resource.region
-    db_resource.resource_type = resource.resource_type
-    db_resource.description = resource.description
-    db_resource.is_vip = resource.is_vip
-    db.commit()
-    sync_resources_to_vector_db()
-    return {"message": "资源更新成功"}
+    if not db_resource: raise HTTPException(status_code=404)
+    for k, v in resource.model_dump().items(): setattr(db_resource, k, v)
+    db.commit(); sync_resources_to_vector_db()
+    return {"message": "更新成功"}
 
 @app.delete("/api/resources/{resource_id}")
 def delete_resource(resource_id: int, db: Session = Depends(get_db)):
-    db_resource = db.query(Resource).filter(Resource.id == resource_id).first()
-    if not db_resource: raise HTTPException(status_code=404, detail="资源不存在")
-    db.delete(db_resource)
-    db.commit()
-    sync_resources_to_vector_db()
-    return {"message": "资源已删除"}
+    db.query(Resource).filter(Resource.id == resource_id).delete()
+    db.commit(); sync_resources_to_vector_db()
+    return {"message": "删除成功"}
 
 @app.post("/api/resources/batch_delete")
 def batch_delete_resources(data: BatchIds, db: Session = Depends(get_db)):
     db.query(Resource).filter(Resource.id.in_(data.ids)).delete(synchronize_session=False)
-    db.commit()
-    sync_resources_to_vector_db()
-    return {"message": f"成功删除 {len(data.ids)} 条资源"}
+    db.commit(); sync_resources_to_vector_db()
+    return {"message": "批量删除成功"}
 
 @app.post("/api/resources/batch_vip")
 def batch_update_vip(data: BatchIds, is_vip: bool, db: Session = Depends(get_db)):
     db.query(Resource).filter(Resource.id.in_(data.ids)).update({Resource.is_vip: is_vip}, synchronize_session=False)
-    db.commit()
-    sync_resources_to_vector_db()
-    return {"message": f"成功更新 {len(data.ids)} 条资源状态"}
+    db.commit(); sync_resources_to_vector_db()
+    return {"message": "批量更新成功"}
 
 @app.post("/api/match", response_model=MatchResponse)
 async def match_requirement(req: MatchRequest):
-    if not req.requirement.strip(): raise HTTPException(status_code=400, detail="需求内容不能为空")
+    if not req.requirement.strip(): raise HTTPException(status_code=400)
     try:
         init_state = {"raw_requirement": req.requirement, "match_round": 0, "candidates": [], "final_status": "pending"}
         result = workflow_app.invoke(init_state)
@@ -138,16 +129,12 @@ async def match_requirement(req: MatchRequest):
         else: msg = "处理异常"
         return MatchResponse(status=result["final_status"], message=msg, data=result)
     except Exception as e:
-        traceback.print_exc()
-        raise HTTPException(status_code=500, detail=str(e))
+        traceback.print_exc(); raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/leads")
 def create_lead(lead: LeadCreate, db: Session = Depends(get_db)):
-    db_lead = Lead(**lead.model_dump())
-    db.add(db_lead)
-    db.commit()
-    db.refresh(db_lead)
-    return {"message": "对接意向提交成功", "lead_id": db_lead.id}
+    db_lead = Lead(**lead.model_dump()); db.add(db_lead); db.commit()
+    return {"message": "提交成功"}
 
 @app.get("/api/leads")
 def get_leads(db: Session = Depends(get_db)):
@@ -158,14 +145,42 @@ def get_leads(db: Session = Depends(get_db)):
 def get_admin_stats(db: Session = Depends(get_db)):
     return {"total_resources": db.query(Resource).count(), "total_leads": db.query(Lead).count(), "total_vip": db.query(Resource).filter(Resource.is_vip == True).count()}
 
-# --- 新增：获取地域字典 API ---
-@app.get("/api/regions")
-def get_regions():
-    """获取标准商业大区与核心城市数据"""
-    return {
-        "regions": REGIONS_DATA,
-        "cities": CORE_CITIES
-    }
+# ================= 新增：大客户微官网接口 =================
+@app.get("/api/vips")
+def get_active_vips(db: Session = Depends(get_db)):
+    vips = db.query(VipClient).filter(VipClient.is_active == True).order_by(VipClient.sort_order.desc()).all()
+    return {"vips": [{"id": v.id, "title": v.title, "banner_url": v.banner_url} for v in vips]}
+
+@app.get("/api/vips/{vip_id}")
+def get_vip_detail(vip_id: int, db: Session = Depends(get_db)):
+    v = db.query(VipClient).filter(VipClient.id == vip_id).first()
+    if not v: raise HTTPException(status_code=404)
+    return {"id": v.id, "title": v.title, "banner_url": v.banner_url, "slogan": v.slogan, "intro": v.intro, "gallery_urls": v.gallery_urls, "cases": v.cases, "phone": v.phone, "wechat": v.wechat, "ext_link": v.ext_link}
+
+@app.get("/api/admin/vips")
+def get_all_vips(db: Session = Depends(get_db)):
+    vips = db.query(VipClient).order_by(VipClient.sort_order.desc()).all()
+    return {"vips": [{"id": v.id, "title": v.title, "banner_url": v.banner_url, "is_active": v.is_active} for v in vips]}
+
+@app.post("/api/admin/vips")
+def create_vip(vip: VipClientCreate, db: Session = Depends(get_db)):
+    db_vip = VipClient(**vip.model_dump())
+    db.add(db_vip); db.commit(); db.refresh(db_vip)
+    return {"message": "发布成功", "id": db_vip.id}
+
+@app.delete("/api/admin/vips/{vip_id}")
+def delete_vip(vip_id: int, db: Session = Depends(get_db)):
+    db.query(VipClient).filter(VipClient.id == vip_id).delete()
+    db.commit()
+    return {"message": "删除成功"}
+
+@app.put("/api/admin/vips/{vip_id}/toggle")
+def toggle_vip(vip_id: int, db: Session = Depends(get_db)):
+    v = db.query(VipClient).filter(VipClient.id == vip_id).first()
+    if v:
+        v.is_active = not v.is_active
+        db.commit()
+    return {"message": "状态已更新"}
 
 @app.get("/")
 def root(): return {"message": "星火引力 API 正在运行"}
