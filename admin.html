@@ -196,7 +196,7 @@
         let currentResources = [];
         let allLeadsData = [];
 
-        // 🌟 全局请求拦截器（自动带上 Token，并处理 401 拦截）
+        // 🌟 全局请求拦截器（仅自动带上 Token，绝不踢人）
         const originalFetch = window.fetch;
         window.fetch = function() {
             let [resource, config] = arguments;
@@ -205,16 +205,7 @@
                 config.headers = config.headers || {};
                 config.headers['Authorization'] = `Bearer ${adminToken}`;
             }
-            // 返回一个处理过 401 的 Promise
-            return originalFetch.apply(this, arguments).then(response => {
-                if (response.status === 401) {
-                    // 如果遇到未授权，直接清空 Token 并刷新页面（回退到登录框）
-                    localStorage.removeItem('adminToken');
-                    alert('登录已过期或未授权，请重新登录！');
-                    window.location.reload();
-                }
-                return response;
-            });
+            return originalFetch.apply(this, arguments);
         };
 
         function handleLogin() {

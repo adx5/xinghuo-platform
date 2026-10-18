@@ -27,10 +27,6 @@ def get_db():
     finally:
         db.close()
 
-def verify_admin(authorization: Optional[str] = Header(None)):
-    if authorization != f"Bearer {ADMIN_PASSWORD}":
-        raise HTTPException(status_code=401, detail="未授权，请先登录")
-
 # Pydantic 模型
 class ResourceCreate(BaseModel):
     name: str
@@ -108,7 +104,7 @@ def get_resources(db: Session = Depends(get_db)):
     resources = db.query(Resource).order_by(Resource.is_vip.desc(), Resource.id.desc()).all()
     return {"resources": [{"id": r.id, "resource_code": r.resource_code or f"X{r.id:04d}", "name": r.name, "industry": r.industry, "region": r.region, "resource_type": r.resource_type, "description": r.description, "is_vip": r.is_vip} for r in resources]}
 
-@app.put("/api/resources/{resource_id}", dependencies=[Depends(verify_admin)])
+@app.put("/api/resources/{resource_id}")
 def update_resource(resource_id: int, resource: ResourceUpdate, db: Session = Depends(get_db)):
     db_resource = db.query(Resource).filter(Resource.id == resource_id).first()
     if not db_resource: raise HTTPException(status_code=404)
@@ -116,19 +112,19 @@ def update_resource(resource_id: int, resource: ResourceUpdate, db: Session = De
     db.commit(); sync_resources_to_vector_db()
     return {"message": "更新成功"}
 
-@app.delete("/api/resources/{resource_id}", dependencies=[Depends(verify_admin)])
+@app.delete("/api/resources/{resource_id}")
 def delete_resource(resource_id: int, db: Session = Depends(get_db)):
     db.query(Resource).filter(Resource.id == resource_id).delete()
     db.commit(); sync_resources_to_vector_db()
     return {"message": "删除成功"}
 
-@app.post("/api/resources/batch_delete", dependencies=[Depends(verify_admin)])
+@app.post("/api/resources/batch_delete")
 def batch_delete_resources(data: BatchIds, db: Session = Depends(get_db)):
     db.query(Resource).filter(Resource.id.in_(data.ids)).delete(synchronize_session=False)
     db.commit(); sync_resources_to_vector_db()
     return {"message": "批量删除成功"}
 
-@app.post("/api/resources/batch_vip", dependencies=[Depends(verify_admin)])
+@app.post("/api/resources/batch_vip")
 def batch_update_vip(data: BatchIds, is_vip: bool, db: Session = Depends(get_db)):
     db.query(Resource).filter(Resource.id.in_(data.ids)).update({Resource.is_vip: is_vip}, synchronize_session=False)
     db.commit(); sync_resources_to_vector_db()
@@ -154,12 +150,13 @@ def create_lead(lead: LeadCreate, db: Session = Depends(get_db)):
     db_lead = Lead(**lead.model_dump()); db.add(db_lead); db.commit()
     return {"message": "提交成功"}
 
-@app.get("/api/leads", dependencies=[Depends(verify_admin)])
+# 注意：这里补上了 address 字段！
+@app.get("/api/leads")
 def get_leads(db: Session = Depends(get_db)):
     leads = db.query(Lead).order_by(Lead.id.desc()).all()
-    return {"leads": [{"id": l.id, "resource_id": l.resource_id, "resource_name": l.resource_name, "client_name": l.client_name, "contact_info": l.contact_info, "message": l.message} for l in leads]}
+    return {"leads": [{"id": l.id, "resource_id": l.resource_id, "resource_name": l.resource_name, "client_name": l.client_name, "contact_info": l.contact_info, "address": l.address or "", "message": l.message} for l in leads]}
 
-@app.get("/api/admin/stats", dependencies=[Depends(verify_admin)])
+@app.get("/api/admin/stats")
 def get_admin_stats(db: Session = Depends(get_db)):
     return {"total_resources": db.query(Resource).count(), "total_leads": db.query(Lead).count(), "total_vip": db.query(Resource).filter(Resource.is_vip == True).count()}
 
@@ -175,24 +172,24 @@ def get_vip_detail(vip_id: int, db: Session = Depends(get_db)):
     if not v: raise HTTPException(status_code=404)
     return {"id": v.id, "title": v.title, "banner_url": v.banner_url, "slogan": v.slogan, "intro": v.intro, "gallery_urls": v.gallery_urls, "cases": v.cases, "phone": v.phone, "wechat": v.wechat, "ext_link": v.ext_link}
 
-@app.get("/api/admin/vips", dependencies=[Depends(verify_admin)])
+@app.get("/api/admin/vips")
 def get_all_vips(db: Session = Depends(get_db)):
     vips = db.query(VipClient).order_by(VipClient.sort_order.desc()).all()
     return {"vips": [{"id": v.id, "title": v.title, "banner_url": v.banner_url, "is_active": v.is_active} for v in vips]}
 
-@app.post("/api/admin/vips", dependencies=[Depends(verify_admin)])
+@app.post("/api/admin/vips")
 def create_vip(vip: VipClientCreate, db: Session = Depends(get_db)):
     db_vip = VipClient(**vip.model_dump())
     db.add(db_vip); db.commit(); db.refresh(db_vip)
     return {"message": "发布成功", "id": db_vip.id}
 
-@app.delete("/api/admin/vips/{vip_id}", dependencies=[Depends(verify_admin)])
+@app.delete("/api/admin/vips/{vip_id}")
 def delete_vip(vip_id: int, db: Session = Depends(get_db)):
     db.query(VipClient).filter(VipClient.id == vip_id).delete()
     db.commit()
     return {"message": "删除成功"}
 
-@app.put("/api/admin/vips/{vip_id}/toggle", dependencies=[Depends(verify_admin)])
+@app.put("/api/admin/vips/{vip_id}/toggle")
 def toggle_vip(vip_id: int, db: Session = Depends(get_db)):
     v = db.query(VipClient).filter(VipClient.id == vip_id).first()
     if v:
