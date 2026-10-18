@@ -2,8 +2,6 @@ import os
 from pathlib import Path
 from sqlalchemy import create_engine, Column, Integer, String, Text, Boolean, text
 from sqlalchemy.orm import declarative_base, sessionmaker
-
-# 导入数据
 from app.seed_data import INITIAL_RESOURCES
 
 SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
@@ -50,14 +48,6 @@ class Lead(Base):
 
 try:
     Base.metadata.create_all(bind=engine)
-    # 自动检测并添加 resource_code 字段（兼容老数据库）
-    with engine.connect() as conn:
-        try:
-            conn.execute(text("SELECT resource_code FROM resources LIMIT 1"))
-        except Exception:
-            print("🔧 检测到旧数据库，正在添加 resource_code 字段...")
-            conn.execute(text("ALTER TABLE resources ADD COLUMN resource_code VARCHAR(20)"))
-            conn.commit()
     print("✅ 数据库表初始化完成")
 except Exception as e:
     print(f"❌ 数据库初始化失败: {e}")
@@ -80,23 +70,32 @@ def seed_initial_data():
     try:
         current_count = db.query(Resource).count()
 
-        # 如果没数据，引用外部文件里的 30 条数据进行播种
+        # 如果没数据，播种
         if current_count == 0:
             print("🌱 检测到数据库为空，正在注入资源...")
             for res_data in INITIAL_RESOURCES:
                 db.add(Resource(**res_data))
             db.commit()
-            current_count = db.query(Resource).count()
 
-        # 检查是否有资源缺少 resource_code，自动补齐
-        missing_code = db.query(Resource).filter(Resource.resource_code == None).all()
-        if missing_code:
-            print(f"🔧 正在为 {len(missing_code)} 条历史资源补齐编码...")
-            for res in missing_code:
-                prefix = get_prefix(res.industry or "未知")
-                res.resource_code = f"{prefix}{res.id:04d}"
+        # 检查是否有资源缺少 resource_code，或者强制刷新一次所有编码（确保马甲占950段）
+        all_resources = db.query(Resource).all()
+        need_update = False
+        for res in all_resources:
+            prefix = get_prefix(res.industry or "未知")
+            # 核心：1-30 对应 950-979
+            if 1 <= res.id <= 30:
+                code_num = 949 + res.id
+            else:
+                code_num = res.id - 30
+
+            new_code = f"{prefix}{code_num:04d}"
+            if res.resource_code != new_code:
+                res.resource_code = new_code
+                need_update = True
+
+        if need_update:
             db.commit()
-            print("✅ 历史数据编码补齐完成！")
+            print("✅ 历史数据编码已全量刷新为 950 段黄金编号！")
 
     except Exception as e:
         print(f"❌ 数据操作失败: {e}")

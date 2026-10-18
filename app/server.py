@@ -62,14 +62,23 @@ def create_resource(resource: ResourceCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(db_resource)
 
-    # 生成专属编码：首字母 + 4位补零ID (如 L0031)
+    # --- 核心修改开始 ---
     prefix = get_prefix(db_resource.industry)
-    db_resource.resource_code = f"{prefix}{db_resource.id:04d}"
+
+    # 1-30 是假数据，映射到 950-979 区间
+    # 31 之后是真实数据，从 0001 开始
+    if 1 <= db_resource.id <= 30:
+        code_num = 949 + db_resource.id  # 1变950，30变979
+    else:
+        code_num = db_resource.id - 30  # 31变001，32变002...
+
+    db_resource.resource_code = f"{prefix}{code_num:04d}"
+    # --- 核心修改结束 ---
+
     db.commit()
 
     sync_resources_to_vector_db()
     return {"message": "资源发布成功", "resource_id": db_resource.id, "resource_code": db_resource.resource_code}
-
 
 @app.post("/api/match", response_model=MatchResponse)
 async def match_requirement(req: MatchRequest):
