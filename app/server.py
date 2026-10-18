@@ -35,6 +35,8 @@ class ResourceCreate(BaseModel):
     resource_type: str
     description: str
     is_vip: bool = False
+    contact_name: str = ""   # 🌟 新增
+    contact_phone: str = ""  # 🌟 新增
 
 class ResourceUpdate(BaseModel):
     name: str
@@ -43,6 +45,8 @@ class ResourceUpdate(BaseModel):
     resource_type: str
     description: str
     is_vip: bool
+    contact_name: str = ""   # 🌟 顺手加上
+    contact_phone: str = ""  # 🌟 顺手加上
 
 class BatchIds(BaseModel):
     ids: List[int]

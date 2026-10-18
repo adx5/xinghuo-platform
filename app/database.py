@@ -22,6 +22,7 @@ else:
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
+
 class Resource(Base):
     __tablename__ = "resources"
     id = Column(Integer, primary_key=True, index=True)
@@ -33,6 +34,11 @@ class Resource(Base):
     description = Column(Text)
     is_vip = Column(Boolean, default=False)
 
+    # 🌟 新增：B端资源发布者联系方式
+    contact_name = Column(String(50), comment="联系人姓名")
+    contact_phone = Column(String(100), comment="联系人手机/微信")
+
+
 class Lead(Base):
     __tablename__ = "leads"
     id = Column(Integer, primary_key=True, index=True)
@@ -43,7 +49,8 @@ class Lead(Base):
     address = Column(String(200))  # 新增：客户地址
     message = Column(Text)
 
-# 🌟 新增：大客户微官网表
+
+# 大客户微官网表
 class VipClient(Base):
     __tablename__ = "vip_clients"
     id = Column(Integer, primary_key=True, index=True)
@@ -59,11 +66,13 @@ class VipClient(Base):
     is_active = Column(Boolean, default=True, comment="是否上架展示")
     sort_order = Column(Integer, default=0, comment="排序权重")
 
+
 try:
     Base.metadata.create_all(bind=engine)
     print("✅ 数据库表初始化完成")
 except Exception as e:
     print(f"❌ 数据库初始化失败: {e}")
+
 
 def get_prefix(industry):
     if any(k in industry for k in ["本地", "餐饮", "生活"]): return "L"
@@ -76,15 +85,13 @@ def get_prefix(industry):
     if any(k in industry for k in ["企业", "营销", "咨询"]): return "B"
     return "X"
 
+
 def seed_initial_data():
     db = SessionLocal()
     try:
-        # 只要数据库里的数据少于30条，就触发强制补齐
         if db.query(Resource).count() < 30:
             print("🌱 检测到数据不足，正在强制补齐初始资源数据...")
-            # 为了防重复，我们先清理一下之前可能冲突的数据（仅针对演示数据）
             for res_data in INITIAL_RESOURCES:
-                # 检查这个名称是否已存在，不存在才插入
                 exists = db.query(Resource).filter(Resource.name == res_data["name"]).first()
                 if not exists:
                     db.add(Resource(**res_data))
@@ -96,5 +103,6 @@ def seed_initial_data():
         print(f"❌ 数据播种失败: {e}")
     finally:
         db.close()
+
 
 seed_initial_data()
