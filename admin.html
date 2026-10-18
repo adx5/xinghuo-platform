@@ -2,6 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>星火引力 - 运营管理后台</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -12,52 +13,93 @@
 </head>
 <body class="bg-gray-100 font-sans text-gray-800 antialiased flex h-screen overflow-hidden">
 
-    <!-- 左侧导航 -->
-    <aside class="w-64 bg-ink-blue text-white flex flex-col shadow-xl z-20">
-        <div class="h-16 flex items-center px-6 border-b border-gray-800">
-            <div class="w-8 h-8 bg-brand rounded-full flex items-center justify-center font-bold text-lg text-white mr-3">星</div>
-            <span class="font-bold text-xl tracking-wider">星火引力</span>
+    <!-- 登录遮罩层 -->
+    <div id="loginScreen" class="fixed inset-0 bg-ink-blue flex items-center justify-center z-[999]">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl w-96 text-center">
+            <div class="w-16 h-16 bg-brand rounded-full flex items-center justify-center text-3xl text-white font-bold mx-auto mb-6">星</div>
+            <h2 class="text-2xl font-bold mb-2">星火引力后台</h2>
+            <p class="text-gray-500 text-sm mb-6">请输入管理密码</p>
+            <input type="password" id="loginPassword" class="w-full border border-gray-300 rounded-lg p-3 text-center mb-4 focus:ring-2 focus:ring-brand outline-none" placeholder="••••••••">
+            <button onclick="handleLogin()" class="w-full bg-brand hover:bg-orange-600 text-white font-bold py-3 rounded-lg transition">进入系统</button>
         </div>
-        <nav class="flex-1 py-6 space-y-2">
-            <a href="#" id="nav-dashboard" onclick="switchTab('dashboard')" class="flex items-center px-6 py-3 text-gray-400 hover:text-white hover:bg-white/5 transition">数据仪表盘</a>
-            <a href="#" id="nav-leads" onclick="switchTab('leads')" class="flex items-center px-6 py-3 text-gray-400 hover:text-white hover:bg-white/5 transition">对接线索池</a>
-            <a href="#" id="nav-resources" onclick="switchTab('resources')" class="flex items-center px-6 py-3 text-gray-400 hover:text-white hover:bg-white/5 transition">资源管理</a>
-            <!-- 新增：大客户微官网管理 -->
-            <a href="#" id="nav-vips" onclick="switchTab('vips')" class="flex items-center px-6 py-3 bg-brand/10 text-brand border-r-4 border-brand font-medium transition">大客户管理</a>
-        </nav>
-        <div class="mt-auto p-6 text-xs text-gray-500 text-center">郑州普耀文化传媒<br>© 2026 星火引力</div>
-    </aside>
+    </div>
 
-    <main class="flex-1 flex flex-col relative overflow-hidden bg-gray-50">
-        <header class="h-16 bg-white shadow-sm flex items-center justify-between px-8 z-10">
-            <h2 id="pageTitle" class="text-lg font-bold text-gray-800">大客户管理</h2>
-            <button onclick="refreshCurrentTab()" class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 py-1.5 px-4 rounded transition">刷新数据</button>
-        </header>
+    <!-- 主体内容 (默认隐藏) -->
+    <div id="mainApp" class="flex w-full h-full hidden">
+        <!-- 左侧侧边栏 -->
+        <aside class="w-64 bg-ink-blue text-white flex flex-col shadow-xl z-20">
+            <div class="h-16 flex items-center px-6 border-b border-gray-800">
+                <div class="w-8 h-8 bg-brand rounded-full flex items-center justify-center font-bold text-lg text-white mr-3">星</div>
+                <span class="font-bold text-xl tracking-wider">星火引力</span>
+            </div>
+            <nav class="flex-1 py-6 space-y-2">
+                <a href="#" id="nav-dashboard" onclick="switchTab('dashboard')" class="flex items-center px-6 py-3 text-gray-400 hover:text-white hover:bg-white/5 transition">数据仪表盘</a>
+                <a href="#" id="nav-leads" onclick="switchTab('leads')" class="flex items-center px-6 py-3 text-gray-400 hover:text-white hover:bg-white/5 transition">对接线索池</a>
+                <a href="#" id="nav-contacts" onclick="switchTab('contacts')" class="flex items-center px-6 py-3 text-gray-400 hover:text-white hover:bg-white/5 transition">客户通讯录</a>
+                <a href="#" id="nav-resources" onclick="switchTab('resources')" class="flex items-center px-6 py-3 text-gray-400 hover:text-white hover:bg-white/5 transition">资源管理</a>
+                <a href="#" id="nav-vips" onclick="switchTab('vips')" class="flex items-center px-6 py-3 bg-brand/10 text-brand border-r-4 border-brand font-medium transition">大客户管理</a>
+            </nav>
+            <div class="mt-auto p-6 border-t border-gray-800 text-xs text-gray-500 text-center">
+                郑州普耀文化传媒<br>© 2026 星火引力
+                <button onclick="logout()" class="mt-2 text-red-400 hover:text-red-300 block w-full text-center">退出登录</button>
+            </div>
+        </aside>
 
-        <!-- 仪表盘与线索 (隐藏不写全，只留结构) -->
-        <div id="tab-dashboard" class="hidden flex-1 p-8 overflow-auto"></div>
-        <div id="tab-leads" class="hidden flex-1 p-8 overflow-auto"></div>
-        <div id="tab-resources" class="hidden flex-1 p-8 overflow-auto"></div>
+        <!-- 右侧主内容区 -->
+        <main class="flex-1 flex flex-col relative overflow-hidden bg-gray-50">
+            <header class="h-16 bg-white shadow-sm flex items-center justify-between px-8 z-10">
+                <h2 id="pageTitle" class="text-lg font-bold text-gray-800">大客户管理</h2>
+                <button onclick="refreshCurrentTab()" class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 py-1.5 px-4 rounded transition">刷新数据</button>
+            </header>
 
-        <!-- ================= 大客户管理 ================= -->
-        <div id="tab-vips" class="flex-1 p-8 overflow-auto">
-            <div class="mb-6 flex justify-between items-center">
-                <div>
-                    <h3 class="text-xl font-bold text-gray-800">大客户微官网列表</h3>
-                    <p class="text-sm text-gray-500 mt-1">在这里管理首页轮播图和微官网详情</p>
+            <!-- 仪表盘 -->
+            <div id="tab-dashboard" class="hidden flex-1 p-8 overflow-auto"></div>
+
+            <!-- 线索池 -->
+            <div id="tab-leads" class="hidden flex-1 p-8 overflow-auto">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead><tr class="bg-gray-50 text-gray-500 text-sm border-b"><th class="py-4 px-6">目标资源</th><th class="py-4 px-6">客户称呼</th><th class="py-4 px-6">联系方式</th><th class="py-4 px-6">留言</th></tr></thead>
+                        <tbody id="leadsTableBody" class="text-sm divide-y divide-gray-100"></tbody>
+                    </table>
                 </div>
-                <button onclick="openVipModal()" class="bg-ink-blue hover:bg-gray-800 text-white px-4 py-2 rounded-lg text-sm transition">+ 发布大客户</button>
             </div>
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                <table class="w-full text-left border-collapse">
-                    <thead><tr class="bg-gray-50 text-gray-500 text-sm border-b">
-                        <th class="py-4 px-6 font-medium">预览图</th><th class="py-4 px-6 font-medium">公司名称</th><th class="py-4 px-6 font-medium">状态</th><th class="py-4 px-6 text-right">操作</th>
-                    </tr></thead>
-                    <tbody id="vipTableBody" class="text-sm divide-y divide-gray-100"></tbody>
-                </table>
+
+            <!-- 🌟 新增：客户通讯录 -->
+            <div id="tab-contacts" class="hidden flex-1 p-8 overflow-auto">
+                <div class="mb-4 flex justify-between items-center">
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800">客户通讯录</h3>
+                        <p class="text-sm text-gray-500">自动汇总所有提交过对接意向的真实客户</p>
+                    </div>
+                    <button onclick="exportContacts()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm transition">⬇ 导出为 Excel</button>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead><tr class="bg-gray-50 text-gray-500 text-sm border-b"><th class="py-4 px-6">客户姓名</th><th class="py-4 px-6">联系方式</th><th class="py-4 px-6">意向资源</th><th class="py-4 px-6">备注留言</th></tr></thead>
+                        <tbody id="contactsTableBody" class="text-sm divide-y divide-gray-100"></tbody>
+                    </table>
+                </div>
             </div>
-        </div>
-    </main>
+
+            <!-- 资源管理 -->
+            <div id="tab-resources" class="hidden flex-1 p-8 overflow-auto"></div>
+
+            <!-- 大客户管理 -->
+            <div id="tab-vips" class="flex-1 p-8 overflow-auto">
+                <div class="mb-6 flex justify-between items-center">
+                    <div><h3 class="text-xl font-bold text-gray-800">大客户微官网列表</h3></div>
+                    <button onclick="openVipModal()" class="bg-ink-blue hover:bg-gray-800 text-white px-4 py-2 rounded-lg text-sm transition">+ 发布大客户</button>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead><tr class="bg-gray-50 text-gray-500 text-sm border-b"><th class="py-4 px-6 font-medium">预览图</th><th class="py-4 px-6 font-medium">公司名称</th><th class="py-4 px-6 font-medium">状态</th><th class="py-4 px-6 text-right">操作</th></tr></thead>
+                        <tbody id="vipTableBody" class="text-sm divide-y divide-gray-100"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
 
     <!-- 发布大客户弹窗 -->
     <div id="vipModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] hidden items-center justify-center p-4">
@@ -88,26 +130,146 @@
 
     <script>
         let currentTab = 'vips';
+        let adminToken = localStorage.getItem('adminToken') || '';
+
+        // 拦截请求，自动带上 Token
+        const originalFetch = window.fetch;
+        window.fetch = function() {
+            let [resource, config] = arguments;
+            if (typeof resource === 'string' && resource.includes('/api/')) {
+                config = config || {};
+                config.headers = config.headers || {};
+                config.headers['Authorization'] = `Bearer ${adminToken}`;
+            }
+            return originalFetch.apply(this, arguments);
+        };
+
+        // 登录逻辑
+        function handleLogin() {
+            const pwd = document.getElementById('loginPassword').value;
+            fetch('https://xinghuo-backend.fastapicloud.dev/api/admin/login', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: pwd })
+            }).then(res => {
+                if (res.ok) return res.json();
+                throw new Error("密码错误");
+            }).then(data => {
+                adminToken = data.token;
+                localStorage.setItem('adminToken', adminToken);
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('mainApp').classList.remove('hidden');
+                switchTab('dashboard');
+            }).catch(err => { alert(err.message); });
+        }
+
+        function logout() {
+            localStorage.removeItem('adminToken');
+            window.location.reload();
+        }
+
+        // 初始化检查
+        if (adminToken) {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            document.addEventListener('DOMContentLoaded', () => switchTab('dashboard'));
+        }
+
         function switchTab(tabId) {
             currentTab = tabId;
-            ['dashboard','leads','resources','vips'].forEach(id => {
+            ['dashboard','leads','contacts','resources','vips'].forEach(id => {
                 document.getElementById('nav-'+id).className = "flex items-center px-6 py-3 text-gray-400 hover:text-white hover:bg-white/5 transition";
                 document.getElementById('tab-'+id).classList.add('hidden');
             });
             document.getElementById('nav-'+tabId).className = "flex items-center px-6 py-3 bg-brand/10 text-brand border-r-4 border-brand font-medium transition";
             document.getElementById('tab-'+tabId).classList.remove('hidden');
-            const titles = { dashboard: '数据仪表盘', leads: '对接线索池', resources: '平台资源管理', vips: '大客户管理' };
+            const titles = { dashboard: '数据仪表盘', leads: '对接线索池', contacts: '客户通讯录', resources: '资源管理', vips: '大客户管理' };
             document.getElementById('pageTitle').innerText = titles[tabId];
+
             if(tabId==='vips') fetchVips();
+            if(tabId==='contacts' || tabId==='leads') fetchLeadsAndContacts();
+            // ... 其他 tab 的加载函数省略，保持原样 ...
         }
         function refreshCurrentTab() { switchTab(currentTab); }
 
+        // 🌟 通讯录与线索加载逻辑
+        let allLeadsData = [];
+        async function fetchLeadsAndContacts() {
+            try {
+                const res = await fetch('https://xinghuo-backend.fastapicloud.dev/api/leads');
+                const data = await res.json();
+                allLeadsData = data.leads || [];
+
+                // 1. 渲染线索池
+                const leadsTbody = document.getElementById('leadsTableBody');
+                if (allLeadsData.length === 0) { leadsTbody.innerHTML = '<tr><td colspan="4" class="py-10 text-center text-gray-400">暂无线索</td></tr>'; }
+                else {
+                    leadsTbody.innerHTML = '';
+                    allLeadsData.forEach(l => {
+                        leadsTbody.innerHTML += `
+                            <tr class="hover:bg-gray-50">
+                                <td class="py-4 px-6"><span class="font-bold text-brand">${l.resource_name}</span></td>
+                                <td class="py-4 px-6 font-medium">${l.client_name}</td>
+                                <td class="py-4 px-6 font-mono text-gray-600">${l.contact_info}</td>
+                                <td class="py-4 px-6 text-gray-500">${l.message || '-'}</td>
+                            </tr>
+                        `;
+                    });
+                }
+
+                // 2. 渲染通讯录（去重）
+                const contactsTbody = document.getElementById('contactsTableBody');
+                const uniqueContacts = new Map();
+                allLeadsData.forEach(l => {
+                    if (l.contact_info) {
+                        uniqueContacts.set(l.contact_info, l);
+                    }
+                });
+                const contactList = Array.from(uniqueContacts.values());
+
+                if (contactList.length === 0) { contactsTbody.innerHTML = '<tr><td colspan="4" class="py-10 text-center text-gray-400">暂无沉淀客户</td></tr>'; }
+                else {
+                    contactsTbody.innerHTML = '';
+                    contactList.forEach(c => {
+                        contactsTbody.innerHTML += `
+                            <tr class="hover:bg-gray-50">
+                                <td class="py-4 px-6 font-bold text-gray-800">${c.client_name}</td>
+                                <td class="py-4 px-6 font-mono text-brand font-bold cursor-pointer hover:underline" onclick="navigator.clipboard.writeText('${c.contact_info}');alert('已复制')">${c.contact_info}</td>
+                                <td class="py-4 px-6 text-gray-600">${c.resource_name}</td>
+                                <td class="py-4 px-6 text-gray-500">${c.message || '-'}</td>
+                            </tr>
+                        `;
+                    });
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        // 🌟 导出 Excel 逻辑
+        function exportContacts() {
+            if(allLeadsData.length === 0) return alert("暂无数据");
+            const uniqueContacts = new Map();
+            allLeadsData.forEach(l => { if (l.contact_info) uniqueContacts.set(l.contact_info, l); });
+
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; // 加 BOM 头防乱码
+            csvContent += "客户姓名,联系方式,意向资源,留言\n";
+            uniqueContacts.forEach(c => {
+                csvContent += `"${c.client_name}","${c.contact_info}","${c.resource_name}","${c.message}"\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "星火引力_客户通讯录.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // 大客户相关逻辑 (保持原样，省略部分...)
         async function fetchVips() {
             const tbody = document.getElementById('vipTableBody');
             try {
                 const res = await fetch('https://xinghuo-backend.fastapicloud.dev/api/admin/vips');
                 const data = await res.json();
-                if (data.vips.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="py-10 text-center text-gray-400">暂无大客户，点击右上角发布</td></tr>'; return; }
+                if (data.vips.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="py-10 text-center text-gray-400">暂无大客户</td></tr>'; return; }
                 tbody.innerHTML = '';
                 data.vips.forEach(v => {
                     tbody.innerHTML += `
@@ -137,40 +299,22 @@
             content.classList.remove('scale-100', 'opacity-100'); content.classList.add('scale-95', 'opacity-0');
             setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
         }
-
         async function saveVip() {
             const data = {
-                title: document.getElementById('vipTitle').value,
-                banner_url: document.getElementById('vipBannerUrl').value,
-                slogan: document.getElementById('vipSlogan').value,
-                intro: document.getElementById('vipIntro').value,
-                gallery_urls: document.getElementById('vipGallery').value,
-                cases: document.getElementById('vipCases').value,
-                phone: document.getElementById('vipPhone').value,
-                wechat: document.getElementById('vipWechat').value,
-                ext_link: document.getElementById('vipExtLink').value,
-                sort_order: 0
+                title: document.getElementById('vipTitle').value, banner_url: document.getElementById('vipBannerUrl').value,
+                slogan: document.getElementById('vipSlogan').value, intro: document.getElementById('vipIntro').value,
+                gallery_urls: document.getElementById('vipGallery').value, cases: document.getElementById('vipCases').value,
+                phone: document.getElementById('vipPhone').value, wechat: document.getElementById('vipWechat').value,
+                ext_link: document.getElementById('vipExtLink').value, sort_order: 0
             };
             if(!data.title || !data.banner_url) { alert("名称和大图链接不能为空"); return; }
             try {
-                const res = await fetch('https://xinghuo-backend.fastapicloud.dev/api/admin/vips', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
-                });
+                const res = await fetch('https://xinghuo-backend.fastapicloud.dev/api/admin/vips', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
                 if(res.ok) { closeVipModal(); fetchVips(); } else { alert("失败"); }
             } catch(e) { alert("网络错误"); }
         }
-
-        async function toggleVip(id) {
-            await fetch(`https://xinghuo-backend.fastapicloud.dev/api/admin/vips/${id}/toggle`, { method: 'PUT' });
-            fetchVips();
-        }
-        async function deleteVip(id) {
-            if(!confirm('确定删除吗？')) return;
-            await fetch(`https://xinghuo-backend.fastapicloud.dev/api/admin/vips/${id}`, { method: 'DELETE' });
-            fetchVips();
-        }
-
-        document.addEventListener('DOMContentLoaded', () => { switchTab('vips'); });
+        async function toggleVip(id) { await fetch(`https://xinghuo-backend.fastapicloud.dev/api/admin/vips/${id}/toggle`, { method: 'PUT' }); fetchVips(); }
+        async function deleteVip(id) { if(confirm('确定删除吗？')) { await fetch(`https://xinghuo-backend.fastapicloud.dev/api/admin/vips/${id}`, { method: 'DELETE' }); fetchVips(); } }
     </script>
 </body>
 </html>
