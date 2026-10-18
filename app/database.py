@@ -8,7 +8,10 @@ SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
 
 if SQLALCHEMY_DATABASE_URL:
     print("🚀 正在连接 Neon PostgreSQL 云数据库...")
-    # Neon 的连接串通常包含 sslmode=require，SQLAlchemy 默认支持
+    # 核心修复：强制 SQLAlchemy 使用 psycopg2 驱动，解决找不到 'psycopg' 的报错
+    if SQLALCHEMY_DATABASE_URL.startswith("postgresql://"):
+        SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgresql://", "postgresql+psycopg2://", 1)
+
     engine = create_engine(SQLALCHEMY_DATABASE_URL)
 else:
     # 2. 本地开发环境回退到 SQLite
@@ -24,6 +27,7 @@ else:
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
+
 class Resource(Base):
     __tablename__ = "resources"
     id = Column(Integer, primary_key=True, index=True)
@@ -34,6 +38,7 @@ class Resource(Base):
     description = Column(Text)
     is_vip = Column(Boolean, default=False)
 
+
 class Lead(Base):
     __tablename__ = "leads"
     id = Column(Integer, primary_key=True, index=True)
@@ -42,6 +47,7 @@ class Lead(Base):
     client_name = Column(String(50))
     contact_info = Column(String(100))
     message = Column(Text)
+
 
 try:
     Base.metadata.create_all(bind=engine)
