@@ -3,28 +3,22 @@ from pathlib import Path
 from sqlalchemy import create_engine, Column, Integer, String, Text, Boolean
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-# 1. 优先读取云端注入的 DATABASE_URL (Neon 提供的)
+# 1. 优先读取 FastAPI Cloud 自动注入的 DATABASE_URL (Neon 提供的)
 SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
 
 if SQLALCHEMY_DATABASE_URL:
     print("🚀 正在连接 Neon PostgreSQL 云数据库...")
-    # 核心修复：兼容处理不同格式的 URL，并强制指定 psycopg2 驱动
     if SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
         SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgres://", "postgresql+psycopg2://", 1)
     elif SQLALCHEMY_DATABASE_URL.startswith("postgresql://"):
         SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgresql://", "postgresql+psycopg2://", 1)
-
     engine = create_engine(SQLALCHEMY_DATABASE_URL)
 else:
-    # 2. 本地开发环境回退到 SQLite
     print("💻 正在连接本地 SQLite 数据库...")
     BASE_DIR = Path(__file__).resolve().parent.parent
     DB_PATH = BASE_DIR / "xinshangquan.db"
     SQLALCHEMY_DATABASE_URL = f"sqlite:///{DB_PATH}"
-    engine = create_engine(
-        SQLALCHEMY_DATABASE_URL,
-        connect_args={"check_same_thread": False}
-    )
+    engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
@@ -56,3 +50,159 @@ try:
     print("✅ 数据库表初始化完成")
 except Exception as e:
     print(f"❌ 数据库初始化失败: {e}")
+
+
+# ==========================================
+# 🌟 数据播种（Seeding）模块 - 30条豪华版
+# ==========================================
+def seed_initial_data():
+    """自动检测：如果数据库为空，则注入首批 30 套高质量商业资源"""
+    db = SessionLocal()
+    try:
+        # 检查是否已经有数据，避免重复插入
+        if db.query(Resource).count() == 0:
+            print("🌱 检测到数据库为空，正在注入首批 30 套高质量商业资源...")
+
+            initial_resources = [
+                # 1-10（基础商贸与本地生活）
+                {"name": "郑州本地餐饮探店达人矩阵", "industry": "本地生活", "region": "河南郑州",
+                 "resource_type": "短视频/达人",
+                 "description": "覆盖郑州二七区、金水区、郑东新区等核心商圈，旗下拥有100+抖音/小红书美食探店达人。专注实体餐饮门店新店开业爆款推广、团购套餐带货，单条视频平均播放量10万+。可提供从达人筛选、脚本策划到集中发布的一站式服务。",
+                 "is_vip": True},
+                {"name": "河南全域社区电梯广告运营商", "industry": "传媒广告", "region": "河南全省",
+                 "resource_type": "线下媒体/电梯广告",
+                 "description": "直接掌握郑州、洛阳等18地市核心中高端社区资源，拥有5万+电梯框架和2万+电梯门禁海报点位。覆盖人群超千万，特别适合快消品、汽车、本地医疗机构进行社区精准渗透和品牌曝光。",
+                 "is_vip": False},
+                {"name": "川渝新能源汽车交付与门店渠道", "industry": "汽车/新能源", "region": "西南地区（川渝）",
+                 "resource_type": "渠道/门店网络",
+                 "description": "在成都、重庆主城区拥有50+家新能源汽车综合展厅及交付中心。现寻找充电桩品牌、汽车后市场服务商（如贴膜、脚垫）、车载智能硬件厂家进行深度合作，可提供场地联合展示及线下销售转化。",
+                 "is_vip": False},
+                {"name": "华南快消酒水总代直供仓", "industry": "食品/快消", "region": "华南地区（广东）",
+                 "resource_type": "供应链/分销",
+                 "description": "深耕珠三角快消市场10年，自有2万平米恒温仓储。拥有多款知名白酒、啤酒及休闲零食的省级代理权。支持一件代发、社区团购供货及线下商超流通渠道铺货，寻找有渠道资源的MCN机构或团长达人合作。",
+                 "is_vip": False},
+                {"name": "星海视觉-短视频全案营销机构", "industry": "企业服务/营销", "region": "全国",
+                 "resource_type": "代运营/内容策划",
+                 "description": "专注为传统企业提供抖音/快手企业号代运营服务。拥有资深编导、摄制及投流团队（巨量引擎认证）。服务过超50家制造及零售企业，提供从账号定位、蓝V认证、短视频拍摄到千川投流的全链路营销解决方案。",
+                 "is_vip": True},
+                {"name": "中原高校青年联盟", "industry": "校园/教育", "region": "河南郑州",
+                 "resource_type": "线下推广/地推",
+                 "description": "覆盖郑州大学、河南大学等省内20所重点高校，直连500+核心学生社团。可承接APP拉新、品牌校园快闪店、校园歌手大赛冠名、考研/公考培训机构线下宣讲会等精准校园营销活动。",
+                 "is_vip": False},
+                {"name": "全国交通枢纽LED数字大屏", "industry": "传媒广告", "region": "全国一二线城市",
+                 "resource_type": "户外大屏/交通枢纽",
+                 "description": "拥有北京、上海、广州、郑州等核心高铁站候车厅及机场出发层的LED数字大屏资源。受众为高净值商旅人群，非常适合高端白酒、豪华汽车品牌、金融理财及文旅项目进行高端品牌形象展示。",
+                 "is_vip": False},
+                {"name": "引力波跨界营销工作室", "industry": "市场营销", "region": "全国",
+                 "resource_type": "异业合作/资源置换",
+                 "description": "专业提供跨行业品牌联名与资源置换方案。擅长将餐饮、美容、汽车保养、本地生活等实体门店的私域流量打通，策划“联合会员日”、“跨界盲盒”等玩法，低成本实现门店互相引流，目前在寻找有门店资源的实体老板共创。",
+                 "is_vip": False},
+                {"name": "豫东绿色农产品直供基地", "industry": "农业/农产品", "region": "河南开封/郑州",
+                 "resource_type": "源头产地/供应链",
+                 "description": "自有5000亩绿色无公害种植基地，主营高品质大蒜、红薯、花生及各类应季蔬菜。源头直供，价格极具优势。现寻找生鲜电商平台、社区团购团长、企事业单位食堂集采、以及农产品深加工企业合作。",
+                 "is_vip": False},
+                {"name": "金税通-企业财税合规专家", "industry": "企业服务", "region": "全国",
+                 "resource_type": "咨询/财税服务",
+                 "description": "专为中小微企业、MCN机构及网络主播提供税务筹划、灵活用工结算、工商注册及代理记账服务。团队拥有多名注册会计师及税务师，能有效解决网红达人佣金结算无票、企业所得税过高等痛点，助力企业合规降本。",
+                 "is_vip": False},
+
+                # 11-20（进阶商业与高净值资源）
+                {"name": "杭州直播电商全品类选品基地", "industry": "直播/电商", "region": "华东地区（杭州）",
+                 "resource_type": "供应链/直播基地",
+                 "description": "位于杭州九堡，拥有3000平米直播展厅，汇集服装、美妆、日用百货等5万+SKU。自有50+专业带货主播，支持纯佣带货、坑位费合作及品牌专场。寻找有爆款潜力的源头工厂及品牌方合作。",
+                 "is_vip": True},
+                {"name": "京津冀政企IT设备集采渠道", "industry": "IT/硬件", "region": "华北地区（京津冀）",
+                 "resource_type": "政企采购/大客户",
+                 "description": "拥有深厚的京津冀政府及国企采购圈层资源，入围多项政府采购协议。主营信创电脑、服务器、办公耗材等。寻找有实力的IT硬件厂商，可协助完成产品测试、入围及大客户投标。",
+                 "is_vip": False},
+                {"name": "全国高端医疗器械经销商联盟", "industry": "医疗/健康", "region": "全国",
+                 "resource_type": "渠道/经销",
+                 "description": "由全国30家省级医疗器械代理商联合发起，主做三甲医院影像设备、康复器械及高值耗材。寻找具有创新性的国产替代医疗器械厂家，要求有二类或三类医疗器械注册证。",
+                 "is_vip": False},
+                {"name": "华南高定家装设计师俱乐部", "industry": "房产/家居", "region": "华南地区（广深）",
+                 "resource_type": "设计师/人脉",
+                 "description": "汇聚广深地区200+独立高定家装设计师，服务对象多为别墅及大平层高净值业主。寻找高端全屋定制品牌、进口家电、智能家居系统提供商进行渠道合作，可提供线下沙龙联合展陈。",
+                 "is_vip": False},
+                {"name": "深圳3C数码跨境出海独立站服务商", "industry": "跨境/出海", "region": "华南地区（深圳）",
+                 "resource_type": "运营/技术",
+                 "description": "深耕Shopify独立站建站及Google/TikTok海外投流。拥有10年出海营销经验，服务过多个千万级3C出海品牌。寻找有出海关需求的3C数码代工厂，可提供从建站到海外本土化营销的一站式服务。",
+                 "is_vip": True},
+                {"name": "上海电竞IP赛事运营与赞助", "industry": "游戏/电竞", "region": "华东地区（上海）",
+                 "resource_type": "赛事/版权",
+                 "description": "拥有多个国内头部电竞IP的赛事运营权，每年举办超百场线上线下电竞比赛，全网曝光量过亿。寻找快消品、汽车、外设品牌进行赛事冠名、赞助及联名产品开发，精准触达Z世代年轻消费群体。",
+                 "is_vip": False},
+                {"name": "华中宠物经济全链路供应链", "industry": "宠物/新消费", "region": "华中地区（武汉）",
+                 "resource_type": "生产/供应链",
+                 "description": "涵盖宠物主粮代工、冻干零食生产及智能猫砂盆等电子产品制造。具备完善的生产资质和研发团队，支持OEM/ODM代工。寻找宠物品牌主理人、宠物医院、线上电商卖家合作。",
+                 "is_vip": False},
+                {"name": "北上广深天使轮创投基金", "industry": "金融/投资", "region": "全国",
+                 "resource_type": "资金/投资",
+                 "description": "专注TMT、新消费及AI赛道的早期天使投资机构。单笔投资额度在100万-500万人民币之间。寻找有潜力的初创团队，要求有清晰的产品原型和可行的商业模式，可提供资金及后续资源赋能。",
+                 "is_vip": True},
+                {"name": "长三角高净值宝妈私域社群", "industry": "流量/社群", "region": "华东地区",
+                 "resource_type": "私域/高净值用户",
+                 "description": "由数十位头部母婴KOC共同发起的私域社群联盟，覆盖长三角超10万高净值家庭。群内消费力极强。寻找高端母婴产品、国际教育游学、儿童医疗健康等领域的品牌进行产品种草与分销合作。",
+                 "is_vip": False},
+                {"name": "广交会/建博会核心展位代理", "industry": "会展/展陈", "region": "华南地区（广州）",
+                 "resource_type": "展会/地推",
+                 "description": "拥有广交会、广州建博会等大型展会核心通道的黄金展位代理权。提供特装展台设计搭建、展会现场地推、客户邀约等服务。寻找急需通过大型展会拓展国内外经销商的建材、家电、五金企业。",
+                 "is_vip": False},
+
+                # 21-30（创新科技与垂直服务）
+                {"name": "成都软件外包与AI应用定制", "industry": "技术/外包", "region": "西南地区（成都）",
+                 "resource_type": "技术开发",
+                 "description": "拥有50人规模的资深研发团队，涵盖Java、Python、Vue前端及大模型API应用开发。提供企业级SaaS定制、小程序开发、AI智能客服等解决方案。寻找有数字化转型需求的传统企业及创业者。",
+                 "is_vip": False},
+                {"name": "河南本土企业商务礼品定制基地", "industry": "企业服务/制造", "region": "河南郑州",
+                 "resource_type": "生产/制造",
+                 "description": "拥有独立的设计团队和自有生产车间，主营高档商务伴手礼、节日定制礼盒、企业文创周边。支持小批量定制和一件代发。寻找企事业单位工会福利采购负责人、保险公司、金融机构渠道合作。",
+                 "is_vip": False},
+                {"name": "西安网红文旅景区联合营销", "industry": "文旅/景区", "region": "西北地区（西安）",
+                 "resource_type": "景区/资源",
+                 "description": "整合西安大雁塔、大唐不夜城周边多个网红打卡点及特色民宿资源。寻找旅游OTA平台、本地特色餐饮品牌、旅拍机构及汉服体验馆进行异业合作，共同打造沉浸式文旅消费套餐。",
+                 "is_vip": False},
+                {"name": "西北光伏与储能项目投资方", "industry": "能源/环保", "region": "西北地区",
+                 "resource_type": "资本/项目",
+                 "description": "专注于西北地区工商业分布式光伏、风电及储能电站的投资与建设。拥有雄厚的资金背景和政府关系。寻找拥有优质屋顶资源、土地资源或高耗能企业用电需求的居间方或合作方。",
+                 "is_vip": True},
+                {"name": "长三角固废处理环保科技服务商", "industry": "环保/科技", "region": "华东地区",
+                 "resource_type": "环保工程/技术",
+                 "description": "专业从事工业固废、危废处理及土壤修复的环保高新技术企业。拥有多项环保工程资质。寻找产生大宗工业废弃物的大型制造企业，以及需要环保工程改造的化工园区进行业务合作。",
+                 "is_vip": False},
+                {"name": "全国连锁餐饮品牌加盟招商", "industry": "餐饮/连锁", "region": "全国",
+                 "resource_type": "加盟/招商",
+                 "description": "旗下拥有两个成熟的中式快餐及茶饮连锁品牌，全国门店超300家。提供全套供应链、SOP培训及选址运营支持。寻找有资金实力、有本地商铺资源的下沉市场投资人或商业地产招商部合作。",
+                 "is_vip": False},
+                {"name": "大湾区供应链金融与保理业务", "industry": "金融/供应链", "region": "华南地区（大湾区）",
+                 "resource_type": "资金/金融",
+                 "description": "专注为珠三角制造及外贸企业提供应收账款保理、供应链金融融资服务。审批快、额度高。寻找年营收2000万以上、有真实贸易背景、面临资金周转压力的企业，或为工厂供货的上下游供应商。",
+                 "is_vip": True},
+                {"name": "东南亚出海落地咨询与合规服务", "industry": "咨询/出海", "region": "全国",
+                 "resource_type": "咨询/法务",
+                 "description": "专注中资企业出海东南亚（印尼、越南、泰国），提供公司注册、当地法务财税合规、工厂选址、劳工签证等服务。寻找想要拓展海外市场的制造型企业、跨境电商大卖家进行落地合作。",
+                 "is_vip": False},
+                {"name": "北京品牌全案定位与视觉升级", "industry": "营销/品牌", "region": "华北地区（北京）",
+                 "resource_type": "策划/设计",
+                 "description": "由前4A广告公司资深总监创立，专为B2B科技企业及新消费品牌提供品牌战略定位、VI视觉设计、官网建设及公关传播服务。寻找处于Pre-A轮融资前后、急需提升品牌形象的企业创始人合作。",
+                 "is_vip": False},
+                {"name": "郑州云仓代发与物流分拣中心", "industry": "物流/仓储", "region": "华中地区（郑州）",
+                 "resource_type": "仓储/代发",
+                 "description": "郑州航空港区3万平米现代化标准云仓，提供电商仓储、一件代发、退货处理及物流分拣服务。对接通达系、顺丰、京东物流，价格优势明显。寻找单量稳定的电商卖家、微商团队及社区团购平台入驻。",
+                 "is_vip": False}
+            ]
+
+            for res_data in initial_resources:
+                db.add(Resource(**res_data))
+
+            db.commit()
+            print(f"✅ 成功注入 {len(initial_resources)} 条初始资源数据！")
+        else:
+            print("ℹ️ 数据库已有数据，跳过播种。")
+    except Exception as e:
+        print(f"❌ 数据播种失败: {e}")
+    finally:
+        db.close()
+
+
+# 执行播种函数
+seed_initial_data()
