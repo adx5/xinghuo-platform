@@ -12,12 +12,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from app.graph import build_graph
 from app.database import SessionLocal, Resource, Lead, VipClient, get_prefix
 from app.vector_store import sync_resources_to_vector_db
+from app.region_data import REGIONS_DATA, CORE_CITIES
 
 app = FastAPI(title="星火引力 - 智能商务撮合 API", version="1.0.0")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=False, allow_methods=["*"], allow_headers=["*"])
 workflow_app = build_graph()
 
-# 🌟 管理员密码配置
 ADMIN_PASSWORD = "xinghuo2026"
 
 def get_db():
@@ -27,7 +27,6 @@ def get_db():
     finally:
         db.close()
 
-# 🌟 鉴权拦截器
 def verify_admin(authorization: Optional[str] = Header(None)):
     if authorization != f"Bearer {ADMIN_PASSWORD}":
         raise HTTPException(status_code=401, detail="未授权，请先登录")
@@ -40,6 +39,7 @@ class ResourceCreate(BaseModel):
     resource_type: str
     description: str
     is_vip: bool = False
+
 class ResourceUpdate(BaseModel):
     name: str
     industry: str
@@ -47,8 +47,10 @@ class ResourceUpdate(BaseModel):
     resource_type: str
     description: str
     is_vip: bool
+
 class BatchIds(BaseModel):
     ids: List[int]
+
 class VipClientCreate(BaseModel):
     title: str
     banner_url: str
@@ -60,6 +62,7 @@ class VipClientCreate(BaseModel):
     wechat: str = ""
     ext_link: str = ""
     sort_order: int = 0
+
 class MatchRequest(BaseModel):
     requirement: str
 class MatchResponse(BaseModel):
@@ -82,7 +85,7 @@ def admin_login(req: LoginRequest):
         return {"token": ADMIN_PASSWORD}
     raise HTTPException(status_code=401, detail="密码错误")
 
-# ================= 资源与线索接口 =================
+# ================= 资源接口 =================
 @app.post("/api/resources")
 def create_resource(resource: ResourceCreate, db: Session = Depends(get_db)):
     db_resource = Resource(**resource.model_dump())
@@ -104,7 +107,6 @@ def get_resources(db: Session = Depends(get_db)):
     resources = db.query(Resource).order_by(Resource.is_vip.desc(), Resource.id.desc()).all()
     return {"resources": [{"id": r.id, "resource_code": r.resource_code or f"X{r.id:04d}", "name": r.name, "industry": r.industry, "region": r.region, "resource_type": r.resource_type, "description": r.description, "is_vip": r.is_vip} for r in resources]}
 
-# 后台资源管理 (加上了权限保护)
 @app.put("/api/resources/{resource_id}", dependencies=[Depends(verify_admin)])
 def update_resource(resource_id: int, resource: ResourceUpdate, db: Session = Depends(get_db)):
     db_resource = db.query(Resource).filter(Resource.id == resource_id).first()
@@ -131,6 +133,7 @@ def batch_update_vip(data: BatchIds, is_vip: bool, db: Session = Depends(get_db)
     db.commit(); sync_resources_to_vector_db()
     return {"message": "批量更新成功"}
 
+# ================= 匹配与线索接口 =================
 @app.post("/api/match", response_model=MatchResponse)
 async def match_requirement(req: MatchRequest):
     if not req.requirement.strip(): raise HTTPException(status_code=400)
@@ -150,7 +153,6 @@ def create_lead(lead: LeadCreate, db: Session = Depends(get_db)):
     db_lead = Lead(**lead.model_dump()); db.add(db_lead); db.commit()
     return {"message": "提交成功"}
 
-# 后台获取线索 (加上了权限保护)
 @app.get("/api/leads", dependencies=[Depends(verify_admin)])
 def get_leads(db: Session = Depends(get_db)):
     leads = db.query(Lead).order_by(Lead.id.desc()).all()
@@ -160,7 +162,7 @@ def get_leads(db: Session = Depends(get_db)):
 def get_admin_stats(db: Session = Depends(get_db)):
     return {"total_resources": db.query(Resource).count(), "total_leads": db.query(Lead).count(), "total_vip": db.query(Resource).filter(Resource.is_vip == True).count()}
 
-# ================= 大客户接口 =================
+# ================= 大客户微官网接口 =================
 @app.get("/api/vips")
 def get_active_vips(db: Session = Depends(get_db)):
     vips = db.query(VipClient).filter(VipClient.is_active == True).order_by(VipClient.sort_order.desc()).all()
@@ -197,6 +199,10 @@ def toggle_vip(vip_id: int, db: Session = Depends(get_db)):
         db.commit()
     return {"message": "状态已更新"}
 
+# ================= 地域字典接口 =================
+@app.get("/api/regions")
+def get_regions():
+    return {"regions": REGIONS_DATA, "cities": CORE_CITIES}
+
 @app.get("/")
 def root(): return {"message": "星火引力 API 正在运行"}
-@app.get("/api/regions")
