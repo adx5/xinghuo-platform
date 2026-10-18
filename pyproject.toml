@@ -10,8 +10,7 @@ dependencies = [
     "python-dotenv",
     "sqlalchemy",
     "langgraph",
-    "sqlalchemy-libsql",
-    "libsql-client",
+    "psycopg2-binary"
 ]
 
 [tool.setuptools.packages.find]

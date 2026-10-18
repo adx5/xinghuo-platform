@@ -3,13 +3,15 @@ from pathlib import Path
 from sqlalchemy import create_engine, Column, Integer, String, Text, Boolean
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-# 1. 优先读取 FastAPI Cloud 自动注入的 DATABASE_URL (Neon 提供的)
+# 1. 优先读取云端注入的 DATABASE_URL (Neon 提供的)
 SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
 
 if SQLALCHEMY_DATABASE_URL:
     print("🚀 正在连接 Neon PostgreSQL 云数据库...")
-    # 核心修复：强制 SQLAlchemy 使用 psycopg2 驱动，解决找不到 'psycopg' 的报错
-    if SQLALCHEMY_DATABASE_URL.startswith("postgresql://"):
+    # 核心修复：兼容处理不同格式的 URL，并强制指定 psycopg2 驱动
+    if SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
+        SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgres://", "postgresql+psycopg2://", 1)
+    elif SQLALCHEMY_DATABASE_URL.startswith("postgresql://"):
         SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgresql://", "postgresql+psycopg2://", 1)
 
     engine = create_engine(SQLALCHEMY_DATABASE_URL)
