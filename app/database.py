@@ -75,10 +75,21 @@ def get_prefix(industry):
 def seed_initial_data():
     db = SessionLocal()
     try:
-        if db.query(Resource).count() == 0:
+        # 只要数据库里的数据少于30条，就触发强制补齐
+        if db.query(Resource).count() < 30:
+            print("🌱 检测到数据不足，正在强制补齐初始资源数据...")
+            # 为了防重复，我们先清理一下之前可能冲突的数据（仅针对演示数据）
             for res_data in INITIAL_RESOURCES:
-                db.add(Resource(**res_data))
+                # 检查这个名称是否已存在，不存在才插入
+                exists = db.query(Resource).filter(Resource.name == res_data["name"]).first()
+                if not exists:
+                    db.add(Resource(**res_data))
             db.commit()
+            print("✅ 初始资源补齐完成！")
+        else:
+            print("ℹ️ 资源数据充足，无需播种。")
+    except Exception as e:
+        print(f"❌ 数据播种失败: {e}")
     finally:
         db.close()
 
