@@ -62,23 +62,18 @@ def create_resource(resource: ResourceCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(db_resource)
 
-    # --- 核心修改开始 ---
+    # 1-30 是假数据，映射到 950-979 区间；31 之后是真实数据，从 0001 开始
     prefix = get_prefix(db_resource.industry)
-
-    # 1-30 是假数据，映射到 950-979 区间
-    # 31 之后是真实数据，从 0001 开始
     if 1 <= db_resource.id <= 30:
-        code_num = 949 + db_resource.id  # 1变950，30变979
+        code_num = 949 + db_resource.id
     else:
-        code_num = db_resource.id - 30  # 31变001，32变002...
-
+        code_num = db_resource.id - 30
     db_resource.resource_code = f"{prefix}{code_num:04d}"
-    # --- 核心修改结束 ---
-
     db.commit()
 
     sync_resources_to_vector_db()
     return {"message": "资源发布成功", "resource_id": db_resource.id, "resource_code": db_resource.resource_code}
+
 
 @app.post("/api/match", response_model=MatchResponse)
 async def match_requirement(req: MatchRequest):
@@ -105,7 +100,7 @@ def get_resources(db: Session = Depends(get_db)):
     return {"resources": [
         {
             "id": r.id,
-            "resource_code": r.resource_code or f"X{r.id:04d}", # 兜底显示
+            "resource_code": r.resource_code or f"X{r.id:04d}",
             "name": r.name,
             "industry": r.industry,
             "region": r.region,
@@ -116,6 +111,7 @@ def get_resources(db: Session = Depends(get_db)):
     ]}
 
 
+# --- 补上缺失的 POST 接口 ---
 @app.post("/api/leads")
 def create_lead(lead: LeadCreate, db: Session = Depends(get_db)):
     db_lead = Lead(**lead.model_dump())
@@ -123,6 +119,21 @@ def create_lead(lead: LeadCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(db_lead)
     return {"message": "对接意向提交成功", "lead_id": db_lead.id}
+
+# --- 新增：补上缺失的 GET 接口 ---
+@app.get("/api/leads")
+def get_leads(db: Session = Depends(get_db)):
+    leads = db.query(Lead).order_by(Lead.id.desc()).all()
+    return {"leads": [
+        {
+            "id": l.id,
+            "resource_id": l.resource_id,
+            "resource_name": l.resource_name,
+            "client_name": l.client_name,
+            "contact_info": l.contact_info,
+            "message": l.message
+        } for l in leads
+    ]}
 
 
 @app.get("/api/admin/stats")
