@@ -523,26 +523,60 @@
                 const v = data.vips.find(item => item.id === id);
                 if(!v) return alert("未找到数据");
 
-                document.getElementById('vipEditId').value = v.id;
-                document.getElementById('vipTitle').value = v.title;
-                document.getElementById('vipBannerUrl').value = v.banner_url;
-                document.getElementById('vipSlogan').value = v.slogan;
-                document.getElementById('vipIntro').value = v.intro;
-                document.getElementById('vipGallery').value = v.gallery_urls;
-                document.getElementById('vipCases').value = v.cases;
-                document.getElementById('vipPhone').value = v.phone;
-                document.getElementById('vipWechat').value = v.wechat;
-                document.getElementById('vipExtLink').value = v.ext_link;
-                document.querySelector('#vipModal h3').innerText = "编辑大客户微官网";
+                // 🌟 安全赋值：如果元素存在才赋值，不存在就跳过，防止报错中断
+                const safeSet = (elId, val) => {
+                    const el = document.getElementById(elId);
+                    if (el) el.value = val || '';
+                };
 
-                document.getElementById('vipModal').classList.remove('hidden');
-                document.getElementById('vipModal').classList.add('flex');
-            } catch(e) { alert("获取数据失败"); }
+                safeSet('vipEditId', v.id);
+                safeSet('vipTitle', v.title);
+                safeSet('vipBannerUrl', v.banner_url);
+                safeSet('vipSlogan', v.slogan);
+                safeSet('vipIntro', v.intro);
+                safeSet('vipGallery', v.gallery_urls);
+                safeSet('vipCases', v.cases);
+                safeSet('vipPhone', v.phone);
+                safeSet('vipWechat', v.wechat);
+                safeSet('vipExtLink', v.ext_link);
+
+                const h3 = document.querySelector('#vipModal h3');
+                if(h3) h3.innerText = "编辑大客户微官网";
+
+                const modal = document.getElementById('vipModal');
+                const content = document.getElementById('vipModalContent');
+
+                if(!modal || !content) {
+                    alert("页面结构缺失：找不到弹窗元素");
+                    return;
+                }
+
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+
+                // 强制移除不可见状态，防止卡在毛玻璃
+                setTimeout(() => {
+                    content.classList.remove('scale-95', 'opacity-0');
+                    content.classList.add('scale-100', 'opacity-100');
+                }, 10);
+            } catch(e) {
+                console.error("编辑报错：", e);
+                alert("获取数据失败，请按 F12 查看控制台报错");
+            }
         }
 
         function closeVipModal() {
-            document.getElementById('vipModal').classList.add('hidden');
-            document.getElementById('vipModal').classList.remove('flex');
+            const modal = document.getElementById('vipModal');
+            const content = document.getElementById('vipModalContent');
+            if(!modal || !content) return;
+
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-95', 'opacity-0');
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
         }
 
         async function saveVip() {
