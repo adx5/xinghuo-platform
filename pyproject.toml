@@ -10,7 +10,8 @@ dependencies = [
     "python-dotenv",
     "sqlalchemy",
     "langgraph",
-    "psycopg2-binary"
+    "psycopg2-binary",
+    "boto3"
 ]
 
 [tool.setuptools.packages.find]

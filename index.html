@@ -28,7 +28,7 @@
 </head>
 <body class="bg-gray-50 font-sans text-gray-800 antialiased">
 
-    <!-- 1. 顶部导航 (完整恢复) -->
+    <!-- 1. 顶部导航 -->
     <nav class="bg-ink-blue text-white sticky top-0 z-50 border-b border-gray-800 shadow-sm">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
             <div class="flex justify-between h-14 sm:h-16 items-center">
@@ -58,7 +58,7 @@
                 <span class="block mt-1 sm:mt-2">不止于信息黄页。<br class="sm:hidden">可检索、可认证、可对接的商业资源聚合门户。</span>
             </p>
 
-            <!-- 轮播图 (恢复) -->
+            <!-- 轮播图 -->
             <div id="vipBannerContainer" class="max-w-4xl mx-auto mb-10 relative overflow-hidden rounded-2xl hidden shadow-2xl group">
                 <div id="vipBannerCarousel" class="flex transition-transform duration-500 ease-in-out h-[200px] sm:h-[300px] md:h-[350px] w-full bg-ink-light"></div>
                 <div id="bannerDots" class="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex space-x-2"></div>
@@ -86,7 +86,7 @@
             <!-- 左侧：引力节点库 -->
             <div id="node-pool" class="lg:col-span-8 space-y-4 sm:space-y-6">
 
-                <!-- 演示区 (完整恢复) -->
+                <!-- 演示区 -->
                 <div id="demoResultArea" class="mb-4 sm:mb-6 fade-transition">
                     <div id="demoStatusMessage" class="mb-3 sm:mb-4 text-base sm:text-xl font-bold text-brand flex items-center gap-1 fade-transition">
                         <span>✦</span> <span id="demoStatusText">撮合成功：探测到 2 个引力节点！</span>
@@ -101,7 +101,7 @@
                                 </div>
                                 <p class="text-gray-600 text-xs sm:text-sm leading-relaxed mb-3 sm:mb-4 line-clamp-3 sm:line-clamp-2"><strong class="text-gray-800">引力理由：</strong><span id="demoCard1Reason"></span></p>
                             </div>
-                            <div class="border-t border-gray-100 pt-2 sm:pt-3 mt-auto"><button class="w-full bg-brand text-white text-xs sm:text-sm font-medium py-1.5 sm:py-2 rounded-lg pointer-events-none">申请对接</button></div>
+                            <div class="border-t border-gray-100 pt-2 sm:pt-3 mt-auto"><button class="w-full bg-brand text-white text-xs sm:text-sm font-medium py-1.5 sm:py-2 rounded-lg pointer-events-none opacity-80">申请对接</button></div>
                         </div>
                         <div id="demoCard2" class="bg-white rounded-xl p-4 sm:p-5 shadow-sm relative overflow-hidden flex flex-col justify-between border-2 border-orange-200 fade-transition">
                             <div>
@@ -111,7 +111,7 @@
                                 </div>
                                 <p class="text-gray-600 text-xs sm:text-sm leading-relaxed mb-3 sm:mb-4 line-clamp-3 sm:line-clamp-2"><strong class="text-gray-800">引力理由：</strong><span id="demoCard2Reason"></span></p>
                             </div>
-                            <div class="border-t border-gray-100 pt-2 sm:pt-3 mt-auto"><button class="w-full bg-brand text-white text-xs sm:text-sm font-medium py-1.5 sm:py-2 rounded-lg pointer-events-none">申请对接</button></div>
+                            <div class="border-t border-gray-100 pt-2 sm:pt-3 mt-auto"><button class="w-full bg-brand text-white text-xs sm:text-sm font-medium py-1.5 sm:py-2 rounded-lg pointer-events-none opacity-80">申请对接</button></div>
                         </div>
                     </div>
                 </div>
@@ -138,7 +138,7 @@
                 </div>
             </div>
 
-            <!-- 右侧：发布区与留资专区 (恢复) -->
+            <!-- 右侧：发布区与留资专区 -->
             <div id="publish" class="lg:col-span-4 relative mt-4 lg:mt-0">
                 <div class="sticky top-20 sm:top-24 space-y-4 sm:space-y-6">
 
@@ -202,6 +202,30 @@
         </div>
     </main>
 
+    <!-- 🌟 修复：补全缺失的线索收集弹窗 HTML -->
+    <div id="leadModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[150] hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-95 opacity-0" id="leadModalContent">
+            <div class="bg-ink-blue px-6 py-4 flex justify-between items-center text-white">
+                <h3 class="font-bold text-lg">申请对接</h3>
+                <button onclick="closeLeadModal()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="bg-orange-50 border border-orange-100 p-3 rounded-lg mb-4">
+                    <p class="text-xs text-gray-500 mb-1">您正在对接：</p>
+                    <p class="font-bold text-brand text-sm" id="modalResourceName">加载中...</p>
+                </div>
+                <div><label class="block text-sm font-medium mb-1">您的称呼 <span class="text-red-500">*</span></label><input type="text" id="leadName" class="w-full border p-2.5 rounded-lg focus:border-brand outline-none" placeholder="如：王总"></div>
+                <div><label class="block text-sm font-medium mb-1">联系方式 <span class="text-red-500">*</span></label><input type="text" id="leadContact" class="w-full border p-2.5 rounded-lg focus:border-brand outline-none" placeholder="手机号 / 微信"></div>
+                <div><label class="block text-sm font-medium mb-1">地址 (选填)</label><input type="text" id="leadAddress" class="w-full border p-2.5 rounded-lg focus:border-brand outline-none" placeholder="所在城市/区域"></div>
+                <div><label class="block text-sm font-medium mb-1">留言备注 (选填)</label><textarea id="leadMessage" rows="2" class="w-full border p-2.5 rounded-lg focus:border-brand outline-none resize-none" placeholder="想了解的具体合作意向..."></textarea></div>
+            </div>
+            <div class="p-4 bg-gray-50 flex justify-end gap-3">
+                <button onclick="closeLeadModal()" class="px-4 py-2 bg-white border rounded-lg hover:bg-gray-50">取消</button>
+                <button onclick="submitLead()" class="px-6 py-2 bg-brand text-white rounded-lg shadow-md hover:bg-brand-hover font-medium">提交申请</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 发布服务选择弹窗 -->
     <div id="publishServiceModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[150] hidden items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden transform transition-all scale-95 opacity-0" id="publishServiceModalContent">
@@ -246,7 +270,6 @@
         let currentResources = [];
 
         document.addEventListener('DOMContentLoaded', () => {
-            // 各模块独立执行，互不阻塞
             fetchRegions().catch(e => console.error(e));
             fetchVipBanners().catch(e => console.error(e));
             fetchResourceList().catch(e => console.error(e));
@@ -293,15 +316,11 @@
                         document.getElementById('vipBannerContainer').classList.remove('hidden');
 
                         bannersData.forEach((vip, index) => {
-                            // 判断是否有 Slogan，有才渲染
                             const sloganHtml = vip.slogan ? `<p class="text-sm sm:text-lg md:text-xl text-gray-200 mt-2 sm:mt-3 font-medium tracking-wide drop-shadow-md">${vip.slogan}</p>` : '';
 
                             container.innerHTML += `
                                 <div class="w-full h-full flex-shrink-0 relative cursor-pointer group" onclick="window.open('vip.html?id=${vip.id}', '_blank')">
-                                    <!-- 轮播大图 -->
                                     <img src="${vip.banner_url}" class="w-full h-full object-cover">
-
-                                    <!-- 叠加的文字层 (带阴影和渐变遮罩) -->
                                     <div class="absolute inset-0 bg-black/30 flex flex-col items-center justify-center text-center px-4 transition duration-500 group-hover:bg-black/50 group-hover:backdrop-blur-[2px]">
                                         <h2 class="text-2xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-wider drop-shadow-2xl transform group-hover:scale-105 transition duration-500">
                                             ${vip.title}
@@ -328,7 +347,6 @@
                 });
         }
 
-        // 采用字符串拼接的稳妥渲染方式
         function fetchResourceList() {
             const listContainer = document.getElementById('resourceList');
             return fetch('https://xinghuo-backend.fastapicloud.dev/api/resources')
@@ -454,6 +472,7 @@
             } catch (e) { showToast("网络错误，请稍后重试", "⚠️"); }
         }
 
+        // 🌟 以下为修复后的线索弹窗逻辑
         let currentLeadResourceId = "";
         let currentLeadResourceName = "";
 
@@ -464,18 +483,20 @@
             currentLeadResourceName = res.name;
             document.getElementById('modalResourceName').innerText = res.name;
 
-            const modal = document.getElementById('leadModal'); const content = document.getElementById('leadModalContent');
+            const modal = document.getElementById('leadModal');
+            const content = document.getElementById('leadModalContent');
             modal.classList.remove('hidden'); modal.classList.add('flex');
             setTimeout(() => { content.classList.remove('scale-95', 'opacity-0'); content.classList.add('scale-100', 'opacity-100'); }, 10);
         }
 
         function closeLeadModal() {
-            const modal = document.getElementById('leadModal'); const content = document.getElementById('leadModalContent');
+            const modal = document.getElementById('leadModal');
+            const content = document.getElementById('leadModalContent');
             content.classList.remove('scale-100', 'opacity-100'); content.classList.add('scale-95', 'opacity-0');
             setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
         }
 
-        async function submitLead() {
+            async function submitLead() {
             const name = document.getElementById('leadName').value;
             const contact = document.getElementById('leadContact').value;
             const address = document.getElementById('leadAddress').value;
@@ -483,47 +504,40 @@
 
             if (!name.trim() || !contact.trim()) { showToast("请填写您的称呼和联系方式", "⚠️"); return; }
 
+            // 🌟 核心修复：强制将所有字段转为字符串，解决后端 422 校验报错
             const data = {
-                resource_id: currentLeadResourceId,
-                resource_name: currentLeadResourceName,
-                client_name: name,
-                contact_info: contact,
-                address: address,
-                message: msg
+                resource_id: String(currentLeadResourceId || ""),
+                resource_name: String(currentLeadResourceName || ""),
+                client_name: String(name),
+                contact_info: String(contact),
+                address: String(address),
+                message: String(msg)
             };
 
             try {
                 const res = await fetch('https://xinghuo-backend.fastapicloud.dev/api/leads', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
                 });
+
                 if (res.ok) {
                     document.getElementById('leadName').value = '';
                     document.getElementById('leadContact').value = '';
                     document.getElementById('leadAddress').value = '';
                     document.getElementById('leadMessage').value = '';
-                    closeLeadModal(); showToast("对接意向已提交，客服会尽快联系您", "🎉");
-                } else { showToast("提交失败，请稍后重试", "❌"); }
-            } catch (e) { showToast("网络错误，请检查后端", "⚠️"); }
-        }
-
-        async function submitDemandLead() {
-            const name = document.getElementById('vipLeadName').value;
-            const contact = document.getElementById('vipLeadContact').value;
-            const msg = document.getElementById('vipLeadMsg').value;
-            if (!name || !contact) { showToast("请填写称呼和联系方式", "⚠️"); return; }
-
-            const data = { resource_id: "DEMAND_LEAD", resource_name: "纯需求客户", client_name: name, contact_info: contact, address: "", message: msg };
-            try {
-                const res = await fetch('https://xinghuo-backend.fastapicloud.dev/api/leads', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
-                });
-                if (res.ok) {
-                    showToast("需求已提交，专属顾问会尽快联系您", "🎉");
-                    document.getElementById('vipLeadName').value = '';
-                    document.getElementById('vipLeadContact').value = '';
-                    document.getElementById('vipLeadMsg').value = '';
-                } else { showToast("提交失败", "❌"); }
-            } catch (e) { showToast("网络错误，请稍后再试", "⚠️"); }
+                    closeLeadModal();
+                    showToast("对接意向已提交，客服会尽快联系您", "🎉");
+                } else {
+                    // 捕获并展示详细报错
+                    const errData = await res.json().catch(() => ({}));
+                    console.error("后端报错详情:", errData);
+                    showToast(`提交失败：${errData.detail ? JSON.stringify(errData.detail) : '请检查网络'}`, "❌");
+                }
+            } catch (e) {
+                console.error("网络请求异常:", e);
+                showToast("网络错误，无法连接到服务器", "⚠️");
+            }
         }
 
         async function submitRequirement() {

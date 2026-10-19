@@ -149,10 +149,34 @@
             <div class="p-6 max-h-[70vh] overflow-y-auto space-y-4">
                 <input type="hidden" id="vipEditId">
                 <div><label class="block text-sm font-medium mb-1">公司名称 / 标题</label><input type="text" id="vipTitle" class="w-full border p-2.5 rounded-lg"></div>
-                <div><label class="block text-sm font-medium mb-1">轮播大图链接</label><input type="text" id="vipBannerUrl" class="w-full border p-2.5 rounded-lg text-xs"></div>
+
+                <!-- 🌟 改造：轮播大图上传 -->
+                <div>
+                    <label class="block text-sm font-medium mb-1">轮播大图 (推荐尺寸 1920x600)</label>
+                    <div class="flex items-center gap-3 mt-1">
+                        <input type="file" id="vipBannerFileInput" accept="image/*" class="hidden" onchange="handleBannerUpload(this)">
+                        <button type="button" onclick="document.getElementById('vipBannerFileInput').click()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm transition">📁 选择图片上传</button>
+                        <span id="vipBannerFileName" class="text-sm text-gray-500 truncate flex-1">未选择文件</span>
+                    </div>
+                    <img id="vipBannerPreview" src="" class="mt-3 w-full h-32 object-cover rounded-lg border hidden">
+                    <input type="hidden" id="vipBannerUrl" value="">
+                </div>
+
                 <div><label class="block text-sm font-medium mb-1">宣传口号</label><input type="text" id="vipSlogan" class="w-full border p-2.5 rounded-lg"></div>
                 <div><label class="block text-sm font-medium mb-1">企业实力介绍</label><textarea id="vipIntro" rows="4" class="w-full border p-2.5 rounded-lg"></textarea></div>
-                <div><label class="block text-sm font-medium mb-1">产品图集 (逗号隔开)</label><textarea id="vipGallery" rows="2" class="w-full border p-2.5 rounded-lg text-xs"></textarea></div>
+
+                <!-- 🌟 改造：产品图集上传 -->
+                <div>
+                    <label class="block text-sm font-medium mb-1">产品图集 (多选)</label>
+                    <div class="flex items-center gap-3 mt-1 mb-2">
+                        <input type="file" id="vipGalleryFileInput" accept="image/*" multiple class="hidden" onchange="handleGalleryUpload(this)">
+                        <button type="button" onclick="document.getElementById('vipGalleryFileInput').click()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm transition">📁 选择多张图片上传</button>
+                        <span id="vipGalleryFileName" class="text-sm text-gray-500 truncate flex-1">支持一次性多选</span>
+                    </div>
+                    <textarea id="vipGallery" rows="2" class="w-full border p-2.5 rounded-lg text-xs" placeholder="上传后自动填入链接，用逗号分隔"></textarea>
+                    <div id="vipGalleryPreview" class="mt-2 grid grid-cols-4 gap-2 hidden"></div>
+                </div>
+
                 <div><label class="block text-sm font-medium mb-1">合作案例 (逗号隔开)</label><textarea id="vipCases" rows="3" class="w-full border p-2.5 rounded-lg text-xs"></textarea></div>
                 <div class="grid grid-cols-2 gap-4">
                     <div><label class="block text-sm font-medium mb-1">联系电话</label><input type="text" id="vipPhone" class="w-full border p-2.5 rounded-lg"></div>
@@ -512,6 +536,14 @@
             document.querySelectorAll('#vipModal input, #vipModal textarea').forEach(el => el.value = '');
             document.getElementById('vipEditId').value = '';
             document.querySelector('#vipModal h3').innerText = "发布大客户微官网";
+            // 清空预览
+            document.getElementById('vipBannerPreview').classList.add('hidden');
+            document.getElementById('vipBannerPreview').src = '';
+            document.getElementById('vipBannerFileName').innerText = '未选择文件';
+            document.getElementById('vipGalleryPreview').innerHTML = '';
+            document.getElementById('vipGalleryPreview').classList.add('hidden');
+            document.getElementById('vipGalleryFileName').innerText = '支持一次性多选';
+
             document.getElementById('vipModal').classList.remove('hidden');
             document.getElementById('vipModal').classList.add('flex');
         }
@@ -523,7 +555,6 @@
                 const v = data.vips.find(item => item.id === id);
                 if(!v) return alert("未找到数据");
 
-                // 🌟 安全赋值：如果元素存在才赋值，不存在就跳过，防止报错中断
                 const safeSet = (elId, val) => {
                     const el = document.getElementById(elId);
                     if (el) el.value = val || '';
@@ -540,6 +571,30 @@
                 safeSet('vipWechat', v.wechat);
                 safeSet('vipExtLink', v.ext_link);
 
+                // 回显大图预览
+                const previewEl = document.getElementById('vipBannerPreview');
+                const fileNameEl = document.getElementById('vipBannerFileName');
+                if (v.banner_url && previewEl) {
+                    previewEl.src = v.banner_url;
+                    previewEl.classList.remove('hidden');
+                    fileNameEl.innerText = '已上传旧图（如需替换请重新选择）';
+                    fileNameEl.className = 'text-sm text-gray-500 truncate flex-1';
+                }
+
+                // 回显图集预览
+                const galleryPreview = document.getElementById('vipGalleryPreview');
+                if (v.gallery_urls && galleryPreview) {
+                    galleryPreview.innerHTML = '';
+                    const urls = v.gallery_urls.split(/[,\n，]/).filter(u => u.trim() !== '');
+                    urls.forEach(url => {
+                        galleryPreview.innerHTML += `<img src="${url.trim()}" class="w-full h-16 object-cover rounded border">`;
+                    });
+                    if(urls.length > 0) {
+                        galleryPreview.classList.remove('hidden');
+                        document.getElementById('vipGalleryFileName').innerText = `已有 ${urls.length} 张图（如需替换请重新选择）`;
+                    }
+                }
+
                 const h3 = document.querySelector('#vipModal h3');
                 if(h3) h3.innerText = "编辑大客户微官网";
 
@@ -554,7 +609,6 @@
                 modal.classList.remove('hidden');
                 modal.classList.add('flex');
 
-                // 强制移除不可见状态，防止卡在毛玻璃
                 setTimeout(() => {
                     content.classList.remove('scale-95', 'opacity-0');
                     content.classList.add('scale-100', 'opacity-100');
@@ -601,6 +655,118 @@
 
         async function toggleVip(id) { await fetch(`https://xinghuo-backend.fastapicloud.dev/api/admin/vips/${id}/toggle`, { method: 'PUT' }); fetchVips(); }
         async function deleteVip(id) { if(confirm('确定删除吗？')) { await fetch(`https://xinghuo-backend.fastapicloud.dev/api/admin/vips/${id}`, { method: 'DELETE' }); fetchVips(); } }
+
+        // ==========================================
+        // 🌟 R2 图床上传逻辑
+        // ==========================================
+
+        // ⚠️ 明天 Cloudflare 生效后，务必把这里替换成你真实的 r2.dev 域名！
+        const R2_PUBLIC_DOMAIN = 'https://pub-xxxxxx.r2.dev';
+
+        // 通用上传函数
+        async function uploadFileToR2(file) {
+            const ext = file.name.split('.').pop();
+            const filename = `img_${Date.now()}_${Math.floor(Math.random()*1000)}.${ext}`;
+
+            // 1. 获取预签名
+            const presignRes = await fetch(`https://xinghuo-backend.fastapicloud.dev/api/admin/upload/presign?filename=${filename}&content_type=${encodeURIComponent(file.type)}`);
+            if (!presignRes.ok) throw new Error('获取上传凭证失败');
+            const { upload_url } = await presignRes.json();
+
+            // 2. 直传 R2
+            const uploadRes = await fetch(upload_url, {
+                method: 'PUT',
+                body: file,
+                headers: { 'Content-Type': file.type }
+            });
+            if (!uploadRes.ok) throw new Error('上传到 R2 失败');
+
+            // 3. 返回拼接好的公网访问 URL
+            return `${R2_PUBLIC_DOMAIN}/${filename}`;
+        }
+
+        // 处理单图（轮播大图）上传
+        async function handleBannerUpload(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const fileNameEl = document.getElementById('vipBannerFileName');
+            const previewEl = document.getElementById('vipBannerPreview');
+
+            fileNameEl.innerText = '正在上传...';
+            fileNameEl.className = 'text-sm text-brand truncate flex-1 animate-pulse';
+            previewEl.src = URL.createObjectURL(file);
+            previewEl.classList.remove('hidden');
+
+            try {
+                const publicUrl = await uploadFileToR2(file);
+                document.getElementById('vipBannerUrl').value = publicUrl;
+                fileNameEl.innerText = '✅ 上传成功';
+                fileNameEl.className = 'text-sm text-green-600 truncate flex-1';
+            } catch (error) {
+                console.error('上传出错:', error);
+                alert('图片上传失败：' + error.message);
+                fileNameEl.innerText = '上传失败，请重试';
+                fileNameEl.className = 'text-sm text-red-600 truncate flex-1';
+                previewEl.classList.add('hidden');
+                document.getElementById('vipBannerUrl').value = '';
+            }
+        }
+
+        // 处理多图（产品图集）上传
+        async function handleGalleryUpload(input) {
+            const files = input.files;
+            if (!files || files.length === 0) return;
+
+            const fileNameEl = document.getElementById('vipGalleryFileName');
+            const previewContainer = document.getElementById('vipGalleryPreview');
+            const galleryTextarea = document.getElementById('vipGallery');
+
+            fileNameEl.innerText = `正在上传 0/${files.length} 张...`;
+            fileNameEl.className = 'text-sm text-brand truncate flex-1 animate-pulse';
+            previewContainer.innerHTML = '';
+            previewContainer.classList.remove('hidden');
+
+            let uploadedUrls = [];
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+
+                // 显示本地预览
+                previewContainer.innerHTML += `<img id="temp-prev-${i}" src="${URL.createObjectURL(file)}" class="w-full h-16 object-cover rounded border opacity-50">`;
+
+                try {
+                    const publicUrl = await uploadFileToR2(file);
+                    uploadedUrls.push(publicUrl);
+
+                    // 更新进度
+                    fileNameEl.innerText = `正在上传 ${i+1}/${files.length} 张...`;
+
+                    // 更新预览状态
+                    const tempPrev = document.getElementById(`temp-prev-${i}`);
+                    if (tempPrev) {
+                        tempPrev.src = publicUrl;
+                        tempPrev.classList.remove('opacity-50');
+                    }
+                } catch (error) {
+                    console.error('单张图上传失败:', error);
+                    fileNameEl.innerText = `部分图片上传失败`;
+                }
+            }
+
+            if (uploadedUrls.length > 0) {
+                // 将新上传的链接追加到文本框（用逗号分隔）
+                let currentVal = galleryTextarea.value.trim();
+                let newVal = uploadedUrls.join(',');
+                galleryTextarea.value = currentVal ? `${currentVal},${newVal}` : newVal;
+
+                fileNameEl.innerText = `✅ ${uploadedUrls.length} 张图上传完成`;
+                fileNameEl.className = 'text-sm text-green-600 truncate flex-1';
+            } else {
+                fileNameEl.innerText = `上传失败`;
+                fileNameEl.className = 'text-sm text-red-600 truncate flex-1';
+            }
+        }
     </script>
 </body>
 </html>
