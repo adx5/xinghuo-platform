@@ -170,16 +170,30 @@ def get_active_vips(db: Session = Depends(get_db)):
     vips = db.query(VipClient).filter(VipClient.is_active == True).order_by(VipClient.sort_order.desc()).all()
     return {"vips": [{"id": v.id, "title": v.title, "banner_url": v.banner_url} for v in vips]}
 
+
 @app.get("/api/vips/{vip_id}")
 def get_vip_detail(vip_id: int, db: Session = Depends(get_db)):
     v = db.query(VipClient).filter(VipClient.id == vip_id).first()
     if not v: raise HTTPException(status_code=404)
-    return {"id": v.id, "title": v.title, "banner_url": v.banner_url, "slogan": v.slogan, "intro": v.intro, "gallery_urls": v.gallery_urls, "cases": v.cases, "phone": v.phone, "wechat": v.wechat, "ext_link": v.ext_link}
+
+    # 🌟 每次打开页面，访问量自动 +1
+    v.view_count = (v.view_count or 0) + 1
+    db.commit()
+
+    return {"id": v.id, "title": v.title, "banner_url": v.banner_url, "slogan": v.slogan, "intro": v.intro,
+            "gallery_urls": v.gallery_urls, "cases": v.cases, "phone": v.phone, "wechat": v.wechat,
+            "ext_link": v.ext_link}
 
 @app.get("/api/admin/vips")
 def get_all_vips(db: Session = Depends(get_db)):
     vips = db.query(VipClient).order_by(VipClient.sort_order.desc()).all()
-    return {"vips": [{"id": v.id, "title": v.title, "banner_url": v.banner_url, "is_active": v.is_active} for v in vips]}
+    return {"vips": [
+        {
+            "id": v.id, "title": v.title, "banner_url": v.banner_url,
+            "is_active": v.is_active,
+            "view_count": v.view_count or 0  # 🌟 新增返回访问量
+        } for v in vips
+    ]}
 
 @app.post("/api/admin/vips")
 def create_vip(vip: VipClientCreate, db: Session = Depends(get_db)):

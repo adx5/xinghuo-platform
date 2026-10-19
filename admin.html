@@ -154,7 +154,7 @@
                 </div>
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                     <table class="w-full text-left border-collapse">
-                        <thead><tr class="bg-gray-50 text-gray-500 text-sm border-b"><th class="py-4 px-6 font-medium">预览图</th><th class="py-4 px-6 font-medium">公司名称</th><th class="py-4 px-6 font-medium">状态</th><th class="py-4 px-6 text-right">操作</th></tr></thead>
+                        <thead><tr class="bg-gray-50 text-gray-500 text-sm border-b"><th class="py-4 px-6 font-medium">预览图</th><th class="py-4 px-6 font-medium">公司名称</th><th class="py-4 px-6 font-medium">状态</th><th class="py-4 px-6 font-medium">访问量</th><th class="py-4 px-6 text-right">操作</th></tr></thead>
                         <tbody id="vipTableBody" class="text-sm divide-y divide-gray-100"></tbody>
                     </table>
                 </div>
@@ -466,6 +466,9 @@
                             <td class="py-3 px-6"><img src="${v.banner_url}" class="h-12 w-32 object-cover rounded border"></td>
                             <td class="py-3 px-6 font-bold">${v.title}</td>
                             <td class="py-3 px-6">${v.is_active ? '<span class="text-green-600 text-xs bg-green-50 px-2 py-1 rounded">展示中</span>' : '<span class="text-gray-500 text-xs bg-gray-100 px-2 py-1 rounded">已下架</span>'}</td>
+                            <td class="py-3 px-6">
+    <span class="text-blue-600 font-bold">${v.view_count}</span> <span class="text-gray-400 text-xs">次</span>
+</td>
                             <td class="py-3 px-6 text-right space-x-2">
                                 <a href="vip.html?id=${v.id}" target="_blank" class="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded">预览</a>
                                 <button onclick="toggleVip(${v.id})" class="text-xs border px-2 py-1 rounded hover:bg-gray-100">${v.is_active ? '下架' : '上架'}</button>
