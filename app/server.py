@@ -168,8 +168,14 @@ def get_admin_stats(db: Session = Depends(get_db)):
 @app.get("/api/vips")
 def get_active_vips(db: Session = Depends(get_db)):
     vips = db.query(VipClient).filter(VipClient.is_active == True).order_by(VipClient.sort_order.desc()).all()
-    return {"vips": [{"id": v.id, "title": v.title, "banner_url": v.banner_url} for v in vips]}
-
+    return {"vips": [
+        {
+            "id": v.id,
+            "title": v.title,
+            "banner_url": v.banner_url,
+            "slogan": v.slogan  # 🌟 新增返回 Slogan
+        } for v in vips
+    ]}
 
 @app.get("/api/vips/{vip_id}")
 def get_vip_detail(vip_id: int, db: Session = Depends(get_db)):

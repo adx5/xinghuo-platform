@@ -291,14 +291,28 @@
                         const container = document.getElementById('vipBannerCarousel');
                         const dotsContainer = document.getElementById('bannerDots');
                         document.getElementById('vipBannerContainer').classList.remove('hidden');
+
                         bannersData.forEach((vip, index) => {
+                            // 判断是否有 Slogan，有才渲染
+                            const sloganHtml = vip.slogan ? `<p class="text-sm sm:text-lg md:text-xl text-gray-200 mt-2 sm:mt-3 font-medium tracking-wide drop-shadow-md">${vip.slogan}</p>` : '';
+
                             container.innerHTML += `
-                                <div class="w-full h-full flex-shrink-0 cursor-pointer" onclick="window.open('vip.html?id=${vip.id}', '_blank')">
+                                <div class="w-full h-full flex-shrink-0 relative cursor-pointer group" onclick="window.open('vip.html?id=${vip.id}', '_blank')">
+                                    <!-- 轮播大图 -->
                                     <img src="${vip.banner_url}" class="w-full h-full object-cover">
+
+                                    <!-- 叠加的文字层 (带阴影和渐变遮罩) -->
+                                    <div class="absolute inset-0 bg-black/30 flex flex-col items-center justify-center text-center px-4 transition duration-500 group-hover:bg-black/50 group-hover:backdrop-blur-[2px]">
+                                        <h2 class="text-2xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-wider drop-shadow-2xl transform group-hover:scale-105 transition duration-500">
+                                            ${vip.title}
+                                        </h2>
+                                        ${sloganHtml}
+                                    </div>
                                 </div>
                             `;
                             dotsContainer.innerHTML += `<div class="w-2 h-2 rounded-full bg-white/50 transition-colors ${index===0?'bg-white w-4':''}" id="dot-${index}"></div>`;
                         });
+
                         if (bannersData.length > 1) {
                             setInterval(() => {
                                 currentBannerIndex = (currentBannerIndex + 1) % bannersData.length;
