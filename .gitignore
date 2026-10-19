@@ -11,3 +11,4 @@ __pycache__/
 *.db-journal
 vector_cache.json
 运维手册.md
+.idea/
