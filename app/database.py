@@ -65,6 +65,7 @@ class VipClient(Base):
     ext_link = Column(String(200), comment="官网/抖音链接")
     is_active = Column(Boolean, default=True, comment="是否上架展示")
     sort_order = Column(Integer, default=0, comment="排序权重")
+    view_count = Column(Integer, default=0, comment="访问量统计")
 
 
 try:
