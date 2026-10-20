@@ -126,13 +126,19 @@
             });
         }
 
-        document.addEventListener('DOMContentLoaded', async () => {
+                document.addEventListener('DOMContentLoaded', async () => {
             if (!currentVipId) { alert("参数错误，缺少大客户ID"); return; }
 
             try {
                 const res = await fetch(`https://xinghuo-backend.fastapicloud.dev/api/vips/${currentVipId}`);
                 if (!res.ok) throw new Error("未找到该客户信息");
                 vipData = await res.json();
+
+                // 🌟 核心：读取 URL 参数（方便你临时演示）或数据库里的主题，并应用
+                const urlParams = new URLSearchParams(window.location.search);
+                const urlTheme = urlParams.get('theme');
+                const activeTheme = urlTheme || vipData.theme || 'warm';
+                document.documentElement.setAttribute('data-theme', activeTheme);
 
                 // 🌟 终极防呆：所有 DOM 操作前先判空
                 if(document.title) document.title = `${vipData.title} - 星火引力推荐`;
@@ -145,6 +151,7 @@
                 if(document.getElementById('vipTitle')) document.getElementById('vipTitle').innerText = vipData.title || '专属推荐';
                 if(document.getElementById('vipSlogan')) document.getElementById('vipSlogan').innerText = vipData.slogan || '';
                 if(document.getElementById('vipIntro')) document.getElementById('vipIntro').innerText = vipData.intro || '暂无介绍';
+
 
                 // 渲染图集
                 if (vipData.gallery_urls) {

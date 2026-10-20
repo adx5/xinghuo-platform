@@ -70,6 +70,7 @@ class VipClientCreate(BaseModel):
     wechat: str = ""
     ext_link: str = ""
     sort_order: int = 0
+    theme: str = "warm" # 🌟 新增这一行
 
 
 class LeadUpdate(BaseModel):
@@ -228,18 +229,16 @@ def get_admin_stats(db: Session = Depends(get_db)):
 @app.get("/api/vips")
 def get_active_vips(db: Session = Depends(get_db)):
     vips = db.query(VipClient).filter(VipClient.is_active == True).order_by(VipClient.sort_order.desc()).all()
-    return {"vips": [{"id": v.id, "title": v.title, "banner_url": v.banner_url, "slogan": v.slogan} for v in vips]}
-
+    return {"vips": [{"id": v.id, "title": v.title, "banner_url": v.banner_url, "slogan": v.slogan, "theme": v.theme} for v in vips]} # 🌟 加了 theme
 
 @app.get("/api/vips/{vip_id}")
 def get_vip_detail(vip_id: int, db: Session = Depends(get_db)):
     v = db.query(VipClient).filter(VipClient.id == vip_id).first()
     if not v: raise HTTPException(status_code=404)
-    v.view_count = (v.view_count or 0) + 1;
-    db.commit()
+    v.view_count = (v.view_count or 0) + 1; db.commit()
     return {"id": v.id, "title": v.title, "banner_url": v.banner_url, "slogan": v.slogan, "intro": v.intro,
             "gallery_urls": v.gallery_urls, "cases": v.cases, "phone": v.phone, "wechat": v.wechat,
-            "ext_link": v.ext_link}
+            "ext_link": v.ext_link, "theme": v.theme} # 🌟 加了 theme
 
 
 @app.get("/api/admin/vips")
@@ -248,8 +247,7 @@ def get_all_vips(db: Session = Depends(get_db)):
     return {"vips": [{"id": v.id, "title": v.title, "banner_url": v.banner_url, "is_active": v.is_active,
                       "view_count": v.view_count or 0, "slogan": v.slogan or "", "intro": v.intro or "",
                       "gallery_urls": v.gallery_urls or "", "cases": v.cases or "", "phone": v.phone or "",
-                      "wechat": v.wechat or "", "ext_link": v.ext_link or ""} for v in vips]}
-
+                      "wechat": v.wechat or "", "ext_link": v.ext_link or "", "theme": v.theme or "warm"} for v in vips]} # 🌟 加了 theme
 
 @app.post("/api/admin/vips")
 def create_vip(vip: VipClientCreate, db: Session = Depends(get_db)):

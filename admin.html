@@ -183,7 +183,17 @@
                     <div><label class="block text-sm font-medium mb-1">微信号</label><input type="text" id="vipWechat" class="w-full border p-2.5 rounded-lg"></div>
                 </div>
                 <div><label class="block text-sm font-medium mb-1">外链 (官网/抖音)</label><input type="text" id="vipExtLink" class="w-full border p-2.5 rounded-lg text-xs"></div>
+
             </div>
+            <div>
+    <label class="block text-sm font-medium mb-1">微官网主题风格</label>
+    <select id="vipTheme" class="w-full border p-2.5 rounded-lg bg-white">
+        <option value="warm">👑 烟火暖色 (适合餐饮/食品/本地生活)</option>
+        <option value="biz">💼 经典商务 (适合金融/政企/B2B)</option>
+        <option value="dark">🌌 极客深色 (适合科技/新能源/AI)</option>
+        <option value="fresh">🌿 自然清新 (适合美妆/大健康/环保)</option>
+    </select>
+</div>
             <div class="p-4 bg-gray-50 flex justify-end gap-3">
                 <button onclick="closeVipModal()" class="px-4 py-2 bg-white border rounded-lg">取消</button>
                 <button onclick="saveVip()" class="px-4 py-2 bg-brand text-white rounded-lg shadow-md">保存</button>
@@ -570,6 +580,10 @@
                 safeSet('vipPhone', v.phone);
                 safeSet('vipWechat', v.wechat);
                 safeSet('vipExtLink', v.ext_link);
+                // 回显主题
+                const themeSelect = document.getElementById('vipTheme');
+                if (themeSelect) themeSelect.value = v.theme || 'warm';
+
 
                 // 回显大图预览
                 const previewEl = document.getElementById('vipBannerPreview');
@@ -635,7 +649,7 @@
 
         async function saveVip() {
             const editId = document.getElementById('vipEditId').value;
-            const data = {
+            const data = {theme: document.getElementById('vipTheme').value,
                 title: document.getElementById('vipTitle').value, banner_url: document.getElementById('vipBannerUrl').value,
                 slogan: document.getElementById('vipSlogan').value, intro: document.getElementById('vipIntro').value,
                 gallery_urls: document.getElementById('vipGallery').value, cases: document.getElementById('vipCases').value,
