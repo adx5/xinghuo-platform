@@ -660,29 +660,28 @@
         // 🌟 R2 图床上传逻辑
         // ==========================================
 
-        // ⚠️ 明天 Cloudflare 生效后，务必把这里替换成你真实的 r2.dev 域名！
-        const R2_PUBLIC_DOMAIN = 'https://pub-xxxxxx.r2.dev';
-
-        // 通用上传函数
+        // 通用上传函数（对接蜜蜂图床后端转发）
         async function uploadFileToR2(file) {
-            const ext = file.name.split('.').pop();
-            const filename = `img_${Date.now()}_${Math.floor(Math.random()*1000)}.${ext}`;
+            const formData = new FormData();
+            formData.append('file', file);
 
-            // 1. 获取预签名
-            const presignRes = await fetch(`https://xinghuo-backend.fastapicloud.dev/api/admin/upload/presign?filename=${filename}&content_type=${encodeURIComponent(file.type)}`);
-            if (!presignRes.ok) throw new Error('获取上传凭证失败');
-            const { upload_url } = await presignRes.json();
+            try {
+                const response = await fetch('https://xinghuo-backend.fastapicloud.dev/api/admin/upload', {
+                    method: 'POST',
+                    body: formData
+                });
 
-            // 2. 直传 R2
-            const uploadRes = await fetch(upload_url, {
-                method: 'PUT',
-                body: file,
-                headers: { 'Content-Type': file.type }
-            });
-            if (!uploadRes.ok) throw new Error('上传到 R2 失败');
+                if (!response.ok) {
+                    const err = await response.json().catch(() => ({}));
+                    throw new Error(err.detail || '上传失败');
+                }
 
-            // 3. 返回拼接好的公网访问 URL
-            return `${R2_PUBLIC_DOMAIN}/${filename}`;
+                const data = await response.json();
+                return data.url; // 直接返回蜜蜂图床生成的完整链接
+            } catch (error) {
+                console.error('上传出错:', error);
+                throw error;
+            }
         }
 
         // 处理单图（轮播大图）上传
