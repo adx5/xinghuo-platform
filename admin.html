@@ -50,7 +50,7 @@
             <header class="h-16 bg-white shadow-sm flex items-center justify-between px-8 z-10">
                 <h2 id="pageTitle" class="text-lg font-bold text-gray-800">大客户管理</h2>
                 <div class="flex items-center gap-4">
-                    <a href="https://adx5.github.io/xinghuo-platform/" target="_blank" class="text-sm text-gray-500 hover:text-brand transition flex items-center gap-1.5 border-r border-gray-200 pr-4">返回前台</a>
+                    <a href="https://xinghuoyinli.de5.net" target="_blank" class="text-sm text-gray-500 hover:text-brand transition flex items-center gap-1.5 border-r border-gray-200 pr-4">返回前台</a>
                     <button onclick="refreshCurrentTab()" class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 py-1.5 px-4 rounded transition">刷新数据</button>
                 </div>
             </header>
@@ -150,7 +150,7 @@
                 <input type="hidden" id="vipEditId">
                 <div><label class="block text-sm font-medium mb-1">公司名称 / 标题</label><input type="text" id="vipTitle" class="w-full border p-2.5 rounded-lg"></div>
 
-                <!-- 🌟 改造：轮播大图上传 -->
+                <!-- 轮播大图上传 -->
                 <div>
                     <label class="block text-sm font-medium mb-1">轮播大图 (推荐尺寸 1920x600)</label>
                     <div class="flex items-center gap-3 mt-1">
@@ -165,7 +165,7 @@
                 <div><label class="block text-sm font-medium mb-1">宣传口号</label><input type="text" id="vipSlogan" class="w-full border p-2.5 rounded-lg"></div>
                 <div><label class="block text-sm font-medium mb-1">企业实力介绍</label><textarea id="vipIntro" rows="4" class="w-full border p-2.5 rounded-lg"></textarea></div>
 
-                <!-- 🌟 改造：产品图集上传 -->
+                <!-- 产品图集上传 -->
                 <div>
                     <label class="block text-sm font-medium mb-1">产品图集 (多选)</label>
                     <div class="flex items-center gap-3 mt-1 mb-2">
@@ -184,16 +184,53 @@
                 </div>
                 <div><label class="block text-sm font-medium mb-1">外链 (官网/抖音)</label><input type="text" id="vipExtLink" class="w-full border p-2.5 rounded-lg text-xs"></div>
 
+                               <!-- 🌟 可视化卡片主题选择 (5色填满版) -->
+                <div>
+                    <label class="block text-sm font-medium mb-2">微官网主题风格</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                        <!-- 星火橙 (品牌默认) -->
+                        <label class="cursor-pointer">
+                            <input type="radio" name="vipThemeRadio" value="orange" class="peer hidden">
+                            <div class="rounded-xl h-14 flex items-center justify-center bg-[#FF6B00] text-white peer-checked:ring-4 peer-checked:ring-offset-2 peer-checked:ring-[#FF6B00] transition shadow-sm hover:opacity-90">
+                                <span class="text-sm font-bold tracking-wider">星火橙</span>
+                            </div>
+                        </label>
+
+                        <!-- 烟火暖色 -->
+                        <label class="cursor-pointer">
+                            <input type="radio" name="vipThemeRadio" value="warm" class="peer hidden" checked>
+                            <div class="rounded-xl h-14 flex items-center justify-center bg-[#E60012] text-white peer-checked:ring-4 peer-checked:ring-offset-2 peer-checked:ring-[#E60012] transition shadow-sm hover:opacity-90">
+                                <span class="text-sm font-bold tracking-wider">烟火暖色</span>
+                            </div>
+                        </label>
+
+                        <!-- 经典商务 -->
+                        <label class="cursor-pointer">
+                            <input type="radio" name="vipThemeRadio" value="biz" class="peer hidden">
+                            <div class="rounded-xl h-14 flex items-center justify-center bg-[#1E40AF] text-white peer-checked:ring-4 peer-checked:ring-offset-2 peer-checked:ring-[#1E40AF] transition shadow-sm hover:opacity-90">
+                                <span class="text-sm font-bold tracking-wider">经典商务</span>
+                            </div>
+                        </label>
+
+                        <!-- 极客深色 -->
+                        <label class="cursor-pointer">
+                            <input type="radio" name="vipThemeRadio" value="dark" class="peer hidden">
+                            <div class="rounded-xl h-14 flex items-center justify-center bg-[#0F172A] text-white peer-checked:ring-4 peer-checked:ring-offset-2 peer-checked:ring-[#0F172A] transition shadow-sm hover:opacity-90">
+                                <span class="text-sm font-bold tracking-wider">极客深色</span>
+                            </div>
+                        </label>
+
+                        <!-- 自然清新 -->
+                        <label class="cursor-pointer">
+                            <input type="radio" name="vipThemeRadio" value="fresh" class="peer hidden">
+                            <div class="rounded-xl h-14 flex items-center justify-center bg-[#10B981] text-white peer-checked:ring-4 peer-checked:ring-offset-2 peer-checked:ring-[#10B981] transition shadow-sm hover:opacity-90">
+                                <span class="text-sm font-bold tracking-wider">自然清新</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
             </div>
-            <div>
-    <label class="block text-sm font-medium mb-1">微官网主题风格</label>
-    <select id="vipTheme" class="w-full border p-2.5 rounded-lg bg-white">
-        <option value="warm">👑 烟火暖色 (适合餐饮/食品/本地生活)</option>
-        <option value="biz">💼 经典商务 (适合金融/政企/B2B)</option>
-        <option value="dark">🌌 极客深色 (适合科技/新能源/AI)</option>
-        <option value="fresh">🌿 自然清新 (适合美妆/大健康/环保)</option>
-    </select>
-</div>
             <div class="p-4 bg-gray-50 flex justify-end gap-3">
                 <button onclick="closeVipModal()" class="px-4 py-2 bg-white border rounded-lg">取消</button>
                 <button onclick="saveVip()" class="px-4 py-2 bg-brand text-white rounded-lg shadow-md">保存</button>
@@ -403,7 +440,6 @@
             } catch(e) { alert("网络错误"); }
         }
 
-        // 导出功能保持原有逻辑
         function exportLeadsToExcel() {
             if(allLeadsData.length === 0) return alert("暂无数据");
             let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
@@ -554,8 +590,21 @@
             document.getElementById('vipGalleryPreview').classList.add('hidden');
             document.getElementById('vipGalleryFileName').innerText = '支持一次性多选';
 
-            document.getElementById('vipModal').classList.remove('hidden');
-            document.getElementById('vipModal').classList.add('flex');
+            // 🌟 重置单选框到默认值
+            const defaultRadio = document.querySelector('input[name="vipThemeRadio"][value="warm"]');
+            if (defaultRadio) defaultRadio.checked = true;
+
+            const modal = document.getElementById('vipModal');
+            const content = document.getElementById('vipModalContent');
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            // 🌟 修复：强制显示弹窗内容（防止毛玻璃）
+            setTimeout(() => {
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
         }
 
         async function editVip(id) {
@@ -580,10 +629,12 @@
                 safeSet('vipPhone', v.phone);
                 safeSet('vipWechat', v.wechat);
                 safeSet('vipExtLink', v.ext_link);
-                // 回显主题
-                const themeSelect = document.getElementById('vipTheme');
-                if (themeSelect) themeSelect.value = v.theme || 'warm';
 
+                // 🌟 回显可视化卡片主题
+                const themeRadios = document.querySelectorAll('input[name="vipThemeRadio"]');
+                themeRadios.forEach(radio => {
+                    radio.checked = (radio.value === (v.theme || 'warm'));
+                });
 
                 // 回显大图预览
                 const previewEl = document.getElementById('vipBannerPreview');
@@ -649,7 +700,12 @@
 
         async function saveVip() {
             const editId = document.getElementById('vipEditId').value;
-            const data = {theme: document.getElementById('vipTheme').value,
+
+            // 🌟 获取选中的主题值
+            const selectedTheme = document.querySelector('input[name="vipThemeRadio"]:checked')?.value || 'warm';
+
+            const data = {
+                theme: selectedTheme,
                 title: document.getElementById('vipTitle').value, banner_url: document.getElementById('vipBannerUrl').value,
                 slogan: document.getElementById('vipSlogan').value, intro: document.getElementById('vipIntro').value,
                 gallery_urls: document.getElementById('vipGallery').value, cases: document.getElementById('vipCases').value,
@@ -671,10 +727,8 @@
         async function deleteVip(id) { if(confirm('确定删除吗？')) { await fetch(`https://xinghuo-backend.fastapicloud.dev/api/admin/vips/${id}`, { method: 'DELETE' }); fetchVips(); } }
 
         // ==========================================
-        // 🌟 R2 图床上传逻辑
+        // 🌟 蜜蜂图床上传逻辑
         // ==========================================
-
-        // 通用上传函数（对接蜜蜂图床后端转发）
         async function uploadFileToR2(file) {
             const formData = new FormData();
             formData.append('file', file);
@@ -691,14 +745,13 @@
                 }
 
                 const data = await response.json();
-                return data.url; // 直接返回蜜蜂图床生成的完整链接
+                return data.url; // 返回蜜蜂图床生成的完整链接
             } catch (error) {
                 console.error('上传出错:', error);
                 throw error;
             }
         }
 
-        // 处理单图（轮播大图）上传
         async function handleBannerUpload(input) {
             const file = input.files[0];
             if (!file) return;
@@ -726,7 +779,6 @@
             }
         }
 
-        // 处理多图（产品图集）上传
         async function handleGalleryUpload(input) {
             const files = input.files;
             if (!files || files.length === 0) return;

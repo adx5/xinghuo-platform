@@ -6,19 +6,150 @@
     <title>品牌专属推荐 - 星火引力</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* 食品行业专属红金配色 */
-        .text-brand-red { color: #E60012; }
-        .bg-brand-red { background-color: #E60012; }
-        .bg-brand-red-hover:hover { background-color: #C5000F; }
-        .text-brand-gold { color: #D4AF37; }
-        .bg-brand-gold { background-color: #D4AF37; }
-        .border-brand-gold { border-color: #D4AF37; }
+        /* 🌟 1. 定义 5 套微官网主题变量 */
+                :root, [data-theme="warm"] {
+            /* 默认：烟火暖色（餐饮/食品） */
+            --bg-page: #F3ECE1; /* 🌟 加深为更有质感的米色 */
+            --bg-card: #FFFFFF;
+            --text-main: #1A1A1A;
+            --text-muted: #78716C;
+            --brand-main: #E60012;
+            --brand-accent: #D4AF37;
+            --brand-hover: #C5000F;
+            --hero-mask: linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(153,0,12,0.8));
+            --border-color: #E5D9C9; /* 加深边框色，适配新底色 */
+        }
 
+        [data-theme="orange"] {
+            /* 星火橙（品牌默认） */
+            --bg-page: #F2F3F5; /* 🌟 加深为更明显的浅灰 */
+            --bg-card: #FFFFFF;
+            --text-main: #0F172A;
+            --text-muted: #64748B;
+            --brand-main: #FF6B00;
+            --brand-accent: #F59E0B;
+            --brand-hover: #E65C00;
+            --hero-mask: linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(230,92,0,0.8));
+            --border-color: #E2E8F0;
+        }
+
+        [data-theme="dark"] {
+            /* 极客深色（科技/新能源） */
+            --bg-page: #0A0F1D; /* 🌟 加深黑夜感，让卡片更凸显 */
+            --bg-card: #1E293B;
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --brand-main: #3B82F6;
+            --brand-accent: #10B981;
+            --brand-hover: #2563EB;
+            --hero-mask: linear-gradient(to bottom, rgba(10,15,29,0.6), rgba(30,58,138,0.8));
+            --border-color: #334155;
+        }
+
+        [data-theme="biz"] {
+            /* 经典商务（金融/政企） */
+            --bg-page: #EFF3F8; /* 🌟 加深冷灰色调 */
+            --bg-card: #FFFFFF;
+            --text-main: #0F172A;
+            --text-muted: #64748B;
+            --brand-main: #1E40AF;
+            --brand-accent: #F59E0B;
+            --brand-hover: #1E3A8A;
+            --hero-mask: linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(30,64,175,0.8));
+            --border-color: #CBD5E1;
+        }
+
+        [data-theme="fresh"] {
+            /* 自然清新（美妆/大健康） */
+            --bg-page: #E7EFE9; /* 🌟 加深薄荷绿底色 */
+            --bg-card: #FFFFFF;
+            --text-main: #2D3436;
+            --text-muted: #636E72;
+            --brand-main: #10B981;
+            --brand-accent: #FBBF24;
+            --brand-hover: #059669;
+            --hero-mask: linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(6,78,59,0.8));
+            --border-color: #C8D8CE;
+        }
+
+        /* 🌟 2. 基础页面映射 */
+        body {
+            background-color: var(--bg-page) !important;
+            color: var(--text-main) !important;
+            transition: background-color 0.4s, color 0.4s;
+        }
+
+        /* 🌟 3. 暴力覆盖原有的 Tailwind 写死颜色 */
+        /* 品牌色 */
+        .text-brand-red, .text-brand-main { color: var(--brand-main) !important; }
+        .bg-brand-red, .bg-brand-main { background-color: var(--brand-main) !important; }
+        .bg-brand-red-hover:hover, .bg-brand-main-hover:hover { background-color: var(--brand-hover) !important; }
+        .border-brand-red { border-color: var(--brand-main) !important; }
+
+        /* 辅助色（原流沙金） */
+        .text-brand-gold, .text-brand-accent { color: var(--brand-accent) !important; }
+        .bg-brand-gold, .bg-brand-accent { background-color: var(--brand-accent) !important; }
+        .border-brand-gold { border-color: var(--brand-accent) !important; }
+
+        /* 卡片与文字 */
+        .bg-white { background-color: var(--bg-card) !important; }
+        .text-gray-900, .text-gray-800 { color: var(--text-main) !important; }
+        .text-gray-700, .text-gray-600, .text-gray-500 { color: var(--text-muted) !important; }
+        .bg-gray-50 { background-color: var(--bg-page) !important; }
+        .border-gray-100, .border-gray-200 { border-color: var(--border-color) !important; }
+
+        /* 底部转化区背景（深色块） */
+        /* 精确指定底部的留资卡片，避免误伤首屏 header */
+        /* 🌟 大矩形：跟随当前主题的卡片色（深色主题就是深色，浅色主题就是白色/浅灰） */
+        div.bg-gray-900.rounded-2xl {
+            background-color: var(--bg-card) !important;
+            color: var(--text-main) !important;
+            border: 1px solid var(--border-color) !important;
+        }
+        /* 左侧文字适配 */
+        div.bg-gray-900.rounded-2xl p.text-gray-400 { color: var(--text-muted) !important; }
+
+        /* 左侧外链按钮适配（防止在浅色背景上出现白底白字） */
+        div.bg-gray-900.rounded-2xl #btnLink {
+            background-color: var(--bg-page) !important;
+            color: var(--text-main) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        /* 🌟 右侧留资框：强制纯白底 + 阴影 */
+        div.bg-gray-900.rounded-2xl > .grid > div.bg-white\/5 {
+            background-color: #FFFFFF !important;
+            border: 1px solid #E5E7EB !important;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        }
+        /* 留资框内的标题和输入框改为深色（适配白底） */
+        div.bg-gray-900.rounded-2xl > .grid > div.bg-white\/5 h3 { color: var(--text-main) !important; }
+        div.bg-gray-900.rounded-2xl > .grid > div.bg-white\/5 input,
+        div.bg-gray-900.rounded-2xl > .grid > div.bg-white\/5 textarea {
+            background-color: #F9FAFB !important;
+            color: #1F2937 !important;
+            border: 1px solid #E5E7EB !important;
+        }
+        div.bg-gray-900.rounded-2xl > .grid > div.bg-white\/5 input::placeholder,
+        div.bg-gray-900.rounded-2xl > .grid > div.bg-white\/5 textarea::placeholder {
+            color: #9CA3AF !important;
+        }
+        /* 提交按钮跟随主色/辅色 */
+        div.bg-gray-900.rounded-2xl > .grid > div.bg-white\/5 button {
+            background-color: var(--brand-main) !important;
+            color: #FFFFFF !important;
+        }
+        /* 给首屏加个保险，强制白字 */
+        #vipHeader h1 { color: #FFFFFF !important; }
+        #vipHeader p { color: var(--brand-accent) !important; }
+
+        /* 首屏大图遮罩 */
+        #vipHeader .absolute.inset-0 { background: var(--hero-mask) !important; }
+
+        /* 动画保留 */
         .hero-bg { background-size: cover; background-position: center; }
         .fade-in-up { animation: fadeInUp 0.8s ease-out forwards; opacity: 0; transform: translateY(20px); }
-        @keyframes fadeInUp {
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="bg-gray-50 font-sans text-gray-800 antialiased pb-20">
