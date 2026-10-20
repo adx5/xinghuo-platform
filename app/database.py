@@ -66,7 +66,7 @@ class VipClient(Base):
     is_active = Column(Boolean, default=True, comment="是否上架展示")
     sort_order = Column(Integer, default=0, comment="排序权重")
     view_count = Column(Integer, default=0, comment="访问量统计")
-
+    theme = Column(String(20), default='warm', comment="微官网主题风格")
 
 try:
     Base.metadata.create_all(bind=engine)
